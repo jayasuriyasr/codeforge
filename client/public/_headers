@@ -1,0 +1,25 @@
+# Cloudflare Pages / Netlify headers.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: geolocation=(), camera=(), microphone=()
+  # Cross-origin isolation → SharedArrayBuffer, required by the in-browser
+  # C/C++ toolchain (emception) to feed stdin to a compiled program. The
+  # CDNs we load toolchains from (jsDelivr, cjrtnc.leaningtech.com) all send
+  # `Cross-Origin-Resource-Policy: cross-origin`, so they still load here.
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+
+# Hashed build assets are immutable.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# The service worker must always revalidate.
+/sw.js
+  Cache-Control: no-cache
+
+# Problem data: let the SW manage freshness, but allow a short browser cache.
+/problems/*
+  Cache-Control: public, max-age=300

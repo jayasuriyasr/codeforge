@@ -1,0 +1,189 @@
+/* SubmissionPanel.css */
+
+.submission-panel {
+  padding: var(--cf-space-6);
+  margin-top: var(--cf-space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--cf-space-6);
+}
+
+.submission-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.submission-title {
+  margin: 0;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--cf-space-2);
+}
+
+.submission-error {
+  color: var(--cf-danger);
+  font-size: var(--cf-text-sm);
+  background: rgba(248, 113, 113, 0.06);
+  border: var(--cf-border-width) solid var(--cf-danger-dim);
+  border-radius: var(--cf-radius-md);
+  padding: var(--cf-space-3);
+}
+
+.failed-case-box {
+  background: var(--cf-bg-overlay, var(--cf-bg-subtle));
+  border: var(--cf-border-width) solid var(--cf-border-base);
+  border-radius: var(--cf-radius-md);
+  padding: var(--cf-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--cf-space-3);
+}
+
+.failed-case-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.failed-case-cols {
+  display: flex;
+  gap: var(--cf-space-4);
+}
+
+.failed-case-cols > div { flex: 1; min-width: 0; }
+
+.failed-case-cols pre {
+  margin: 0;
+  padding: var(--cf-space-2);
+  background: var(--cf-bg-base);
+  border: var(--cf-border-width) solid var(--cf-border-muted);
+  border-radius: var(--cf-radius-sm);
+  font-size: var(--cf-text-xs);
+  max-height: 160px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.failed-case-label {
+  font-size: var(--cf-text-2xs);
+  color: var(--cf-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--cf-tracking-wide);
+  margin-bottom: var(--cf-space-1);
+}
+
+.failed-case-hidden {
+  margin: 0;
+  color: var(--cf-text-muted);
+  font-size: var(--cf-text-sm);
+  font-style: italic;
+}
+
+.cf-btn-sm {
+  font-size: var(--cf-text-xs);
+  padding: 2px 8px;
+  border-radius: var(--cf-radius-sm);
+  border: var(--cf-border-width) solid var(--cf-border-strong);
+  background: none;
+  color: var(--cf-text-secondary);
+  cursor: pointer;
+}
+
+.submission-stats {
+  display: flex;
+  gap: var(--cf-space-6);
+  padding: var(--cf-space-4);
+  background: var(--cf-bg-subtle);
+  border-radius: var(--cf-radius-md);
+  border: var(--cf-border-width) solid var(--cf-border-muted);
+}
+
+.stat-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cf-space-1);
+}
+
+.stat-label {
+  font-size: var(--cf-text-xs);
+  color: var(--cf-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--cf-tracking-wide);
+}
+
+.stat-value {
+  font-family: var(--cf-font-code);
+  font-size: var(--cf-text-md);
+  color: var(--cf-text-primary);
+  font-weight: var(--cf-weight-medium);
+}
+
+.section-heading {
+  margin-bottom: var(--cf-space-3);
+  font-size: var(--cf-text-sm);
+  color: var(--cf-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: var(--cf-tracking-wider);
+}
+
+.compile-error-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.compile-error-text {
+  color: var(--cf-danger);
+  border-color: var(--cf-danger-dim);
+  background: rgba(248, 113, 113, 0.05);
+}
+
+.test-cases-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--cf-space-4);
+}
+
+.test-case-card {
+  padding: var(--cf-space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--cf-space-3);
+  transition: transform var(--cf-transition-fast);
+}
+
+.test-case-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--cf-border-strong);
+}
+
+.test-case-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.test-case-name {
+  font-size: var(--cf-text-sm);
+  font-weight: var(--cf-weight-medium);
+  color: var(--cf-text-primary);
+}
+
+.test-case-metrics {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--cf-font-code);
+  font-size: var(--cf-text-xs);
+  color: var(--cf-text-muted);
+}
+
+.loading-full-data {
+  text-align: center;
+  color: var(--cf-text-muted);
+  font-size: var(--cf-text-sm);
+  padding: var(--cf-space-2) 0;
+}

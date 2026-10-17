@@ -1,0 +1,566 @@
+/* =============================================================================
+   CodeForge Arena — Global Design Tokens & Base Styles
+   Phase 6.1
+   =============================================================================
+
+   ARCHITECTURE
+   ─────────────────────────────────────────────────────────────────────────────
+   All values live as CSS custom properties on :root.  Pages and components
+   never use magic numbers — they reference tokens.  The token groups are:
+
+     § Color palette    (--cf-*)
+     § Typography       (--cf-font-*, --cf-text-*)
+     § Spacing scale    (--cf-space-*)
+     § Border / radius  (--cf-radius-*, --cf-border-*)
+     § Shadow           (--cf-shadow-*)
+     § Z-index stack    (--cf-z-*)
+     § Animation        (--cf-dur-*, --cf-ease-*)
+     § Verdict colors   (--cf-verdict-*)   used by the judge result badges
+
+   ============================================================================= */
+
+/* ── Google Fonts (also loaded in index.html via <link> for fastest FOUT) ──── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+/* ── Normalize ───────────────────────────────────────────────────────────────  */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* =============================================================================
+   § COLOR PALETTE
+   Dark-first.  Every color token has a semantic name, not a hue name.
+   ============================================================================= */
+:root {
+
+  /* ── Canvas ── */
+  --cf-bg-base:       #0d0f14;   /* page background — deepest layer            */
+  --cf-bg-raised:     #13161e;   /* cards, panels, modals                      */
+  --cf-bg-overlay:    #1a1d28;   /* dropdowns, tooltips, drawers               */
+  --cf-bg-subtle:     #1f2232;   /* hover state, code block background         */
+  --cf-bg-input:      #161923;   /* text input / textarea fills                */
+
+  /* ── Border ── */
+  --cf-border-muted:  #252836;   /* structural dividers, idle borders          */
+  --cf-border-base:   #31354a;   /* default interactive border                 */
+  --cf-border-strong: #474d6d;   /* focused / hover border                     */
+
+  /* ── Text ── */
+  --cf-text-muted:    #4b5068;   /* timestamps, labels, helper text            */
+  --cf-text-secondary:#7b82a0;   /* body copy, descriptions                   */
+  --cf-text-primary:  #c8ccdf;   /* main readable text                         */
+  --cf-text-heading:  #e8eaf2;   /* headings, emphasis                         */
+  --cf-text-bright:   #f4f5fa;   /* maximum contrast text on dark backgrounds  */
+
+  /* ── Brand / accent (violet-indigo) ── */
+  --cf-accent:        #7c6cfa;   /* primary interactive color                  */
+  --cf-accent-bright: #9d90fb;   /* hover state for accent                     */
+  --cf-accent-dim:    #4c42c8;   /* pressed / active state                     */
+  --cf-accent-ghost:  rgba(124, 108, 250, 0.12);  /* accent fills (badges…)  */
+  --cf-accent-glow:   rgba(124, 108, 250, 0.35);  /* glow/ring on focus       */
+
+  /* ── Semantic status colors ── */
+  --cf-success:       #34d399;   /* AC, healthy states                         */
+  --cf-success-dim:   rgba(52, 211, 153, 0.12);
+  --cf-warning:       #f59e0b;   /* timer urgency, rate-limit warnings         */
+  --cf-warning-dim:   rgba(245, 158, 11, 0.12);
+  --cf-danger:        #f87171;   /* WA, CE, errors                             */
+  --cf-danger-dim:    rgba(248, 113, 113, 0.12);
+  --cf-info:          #60a5fa;   /* TLE, RE, neutral info states               */
+  --cf-info-dim:      rgba(96, 165, 250, 0.12);
+
+  /* ── Verdict colors (used by VerdictBadge in Step 12+) ── */
+  --cf-verdict-AC:    var(--cf-success);
+  --cf-verdict-WA:    var(--cf-danger);
+  --cf-verdict-TLE:   var(--cf-info);
+  --cf-verdict-MLE:   #a78bfa;          /* purple — memory domain               */
+  --cf-verdict-RE:    var(--cf-warning);
+  --cf-verdict-CE:    #fb923c;          /* orange — compile domain              */
+  --cf-verdict-INFRA: var(--cf-text-muted);
+
+  /* ── Editor / code surface ── */
+  --cf-editor-bg:     #0b0d12;
+  --cf-editor-gutter: #13161e;
+  --cf-editor-line-highlight: rgba(124, 108, 250, 0.07);
+  --cf-editor-cursor: var(--cf-accent);
+  --cf-editor-selection: rgba(124, 108, 250, 0.22);
+
+
+  /* ==========================================================================
+     § TYPOGRAPHY
+     ========================================================================== */
+
+  /* Stacks — always falls back to system fonts if Google Fonts fails to load */
+  --cf-font-ui:   'Inter',         system-ui, 'Segoe UI', Roboto, sans-serif;
+  --cf-font-code: 'JetBrains Mono', ui-monospace, Cascadia Code, Consolas, monospace;
+
+  /* Scale (rem, base 16 px) */
+  --cf-text-2xs:  0.625rem;   /* 10 px — tiny chip labels                     */
+  --cf-text-xs:   0.75rem;    /* 12 px — captions, timestamps                  */
+  --cf-text-sm:   0.875rem;   /* 14 px — secondary UI, input labels            */
+  --cf-text-base: 1rem;       /* 16 px — body                                  */
+  --cf-text-md:   1.125rem;   /* 18 px — prominent body                        */
+  --cf-text-lg:   1.25rem;    /* 20 px — card titles, section headings         */
+  --cf-text-xl:   1.5rem;     /* 24 px — page sub-headings                     */
+  --cf-text-2xl:  2rem;       /* 32 px — page headings                         */
+  --cf-text-3xl:  2.5rem;     /* 40 px — hero                                  */
+  --cf-text-4xl:  3.25rem;    /* 52 px — display                               */
+
+  /* Line heights */
+  --cf-leading-tight:   1.2;
+  --cf-leading-snug:    1.35;
+  --cf-leading-base:    1.5;
+  --cf-leading-relaxed: 1.7;
+
+  /* Font weights */
+  --cf-weight-light:    300;
+  --cf-weight-normal:   400;
+  --cf-weight-medium:   500;
+  --cf-weight-semibold: 600;
+  --cf-weight-bold:     700;
+
+  /* Letter spacing */
+  --cf-tracking-tight:  -0.04em;
+  --cf-tracking-snug:   -0.02em;
+  --cf-tracking-normal:  0em;
+  --cf-tracking-wide:    0.04em;
+  --cf-tracking-wider:   0.08em;
+  --cf-tracking-widest:  0.15em;
+
+
+  /* ==========================================================================
+     § SPACING SCALE  (4-px grid)
+     ========================================================================== */
+  --cf-space-1:  0.25rem;   /*  4 px */
+  --cf-space-2:  0.5rem;    /*  8 px */
+  --cf-space-3:  0.75rem;   /* 12 px */
+  --cf-space-4:  1rem;      /* 16 px */
+  --cf-space-5:  1.25rem;   /* 20 px */
+  --cf-space-6:  1.5rem;    /* 24 px */
+  --cf-space-8:  2rem;      /* 32 px */
+  --cf-space-10: 2.5rem;    /* 40 px */
+  --cf-space-12: 3rem;      /* 48 px */
+  --cf-space-16: 4rem;      /* 64 px */
+  --cf-space-20: 5rem;      /* 80 px */
+  --cf-space-24: 6rem;      /* 96 px */
+
+
+  /* ==========================================================================
+     § BORDER & RADIUS
+     ========================================================================== */
+  --cf-radius-sm:   4px;
+  --cf-radius-md:   8px;
+  --cf-radius-lg:   12px;
+  --cf-radius-xl:   16px;
+  --cf-radius-2xl:  24px;
+  --cf-radius-full: 9999px;   /* pill / avatar */
+
+  --cf-border-width: 1px;
+
+
+  /* ==========================================================================
+     § SHADOWS
+     ========================================================================== */
+  /* Layered shadow system — shadows carry hue to avoid "grey blob" effect */
+  --cf-shadow-xs:
+    0 1px 2px rgba(0, 0, 0, 0.4);
+  --cf-shadow-sm:
+    0 2px 6px rgba(0, 0, 0, 0.5),
+    0 1px 2px rgba(0, 0, 0, 0.4);
+  --cf-shadow-md:
+    0 4px 16px rgba(0, 0, 0, 0.55),
+    0 2px 4px rgba(0, 0, 0, 0.4);
+  --cf-shadow-lg:
+    0 8px 32px rgba(0, 0, 0, 0.6),
+    0 3px 8px rgba(0, 0, 0, 0.45);
+  --cf-shadow-xl:
+    0 16px 64px rgba(0, 0, 0, 0.65),
+    0 6px 16px rgba(0, 0, 0, 0.5);
+
+  /* Accent glow — applied on focused inputs, active editor, verdict pop */
+  --cf-glow-accent: 0 0 0 3px var(--cf-accent-glow);
+  --cf-glow-success: 0 0 0 3px rgba(52, 211, 153, 0.30);
+  --cf-glow-danger:  0 0 0 3px rgba(248, 113, 113, 0.30);
+
+
+  /* ==========================================================================
+     § Z-INDEX STACK
+     ========================================================================== */
+  --cf-z-base:    0;
+  --cf-z-raised:  10;
+  --cf-z-overlay: 100;
+  --cf-z-drawer:  200;
+  --cf-z-modal:   300;
+  --cf-z-popover: 400;
+  --cf-z-toast:   500;
+  --cf-z-top:     9999;
+
+
+  /* ==========================================================================
+     § ANIMATION TOKENS
+     ─────────────────────────────────────────────────────────────────────────
+     Durations — shorter for micro-interactions, longer for page-level moves.
+     Easings — named after their feel, not their cubic-bezier values.
+     ========================================================================== */
+
+  /* Durations */
+  --cf-dur-instant:  80ms;    /* hover label appears, icon swaps               */
+  --cf-dur-fast:     150ms;   /* button state, toggle, chip select             */
+  --cf-dur-base:     250ms;   /* default: panel open, tab change               */
+  --cf-dur-moderate: 400ms;   /* drawer slide, skeleton → content              */
+  --cf-dur-slow:     600ms;   /* page enter, verdict arrival pop               */
+  --cf-dur-xslow:    1000ms;  /* celebration, full-screen transition           */
+
+  /* Easings */
+  --cf-ease-linear:   linear;
+  --cf-ease-in:       cubic-bezier(0.4, 0, 1, 1);
+  --cf-ease-out:      cubic-bezier(0, 0, 0.2, 1);      /* exits / fades out    */
+  --cf-ease-inout:    cubic-bezier(0.4, 0, 0.2, 1);    /* most transitions     */
+  --cf-ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1); /* bouncy enter       */
+  --cf-ease-decel:    cubic-bezier(0.0, 0.0, 0.2, 1);  /* slide-in from edge  */
+  --cf-ease-accel:    cubic-bezier(0.4, 0.0, 1.0, 1);  /* slide-out to edge   */
+
+  /* Composite shorthand (value: duration easing) — use in transition: */
+  --cf-transition-fast:   var(--cf-dur-fast)     var(--cf-ease-inout);
+  --cf-transition-base:   var(--cf-dur-base)     var(--cf-ease-inout);
+  --cf-transition-slow:   var(--cf-dur-slow)      var(--cf-ease-out);
+  --cf-transition-spring: var(--cf-dur-moderate) var(--cf-ease-spring);
+
+  /* Layout */
+  --cf-max-width: 1280px;
+  --cf-sidebar-width: 240px;
+  --cf-navbar-height: 56px;
+}
+
+
+/* =============================================================================
+   § KEYFRAME ANIMATIONS
+   Defined globally — consumed via animation: <name> var(--cf-dur-*) …
+   ============================================================================= */
+
+/* Fade in — opacity 0 → 1 */
+@keyframes cf-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Fade up — slides up 12px while fading in */
+@keyframes cf-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* Fade down — slides down 12px while fading in */
+@keyframes cf-fade-down {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0);     }
+}
+
+/* Scale pop — spring scale-in */
+@keyframes cf-scale-in {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+
+/* Verdict arrival — burst of scale then settle */
+@keyframes cf-verdict-pop {
+  0%   { opacity: 0; transform: scale(0.7);  }
+  60%  { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1);    }
+}
+
+/* Timer pulse — subtle luminance pulse for live countdowns */
+@keyframes cf-pulse {
+  0%, 100% { opacity: 1;    }
+  50%       { opacity: 0.55; }
+}
+
+/* Skeleton shimmer — loading state */
+@keyframes cf-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+/* Spin — spinner / loading indicator */
+@keyframes cf-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Slide in from right (drawer / panel) */
+@keyframes cf-slide-in-right {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+/* Slide in from left */
+@keyframes cf-slide-in-left {
+  from { transform: translateX(-100%); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+
+/* Glow throb — accent ring pulsing (e.g. running submission indicator) */
+@keyframes cf-glow-throb {
+  0%, 100% { box-shadow: 0 0 0 0   var(--cf-accent-glow); }
+  50%       { box-shadow: 0 0 0 8px var(--cf-accent-glow); }
+}
+
+
+/* =============================================================================
+   § BASE STYLES
+   ============================================================================= */
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  /* Force dark — this is a dark-first product, no light toggle in this phase */
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--cf-font-ui);
+  font-size: var(--cf-text-base);
+  font-weight: var(--cf-weight-normal);
+  line-height: var(--cf-leading-base);
+  letter-spacing: 0.01em;
+  color: var(--cf-text-primary);
+  background-color: var(--cf-bg-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-synthesis: none;
+  /* Prevent layout shift from scrollbar appearing */
+  overflow-y: scroll;
+}
+
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Headings ── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--cf-font-ui);
+  font-weight: var(--cf-weight-semibold);
+  line-height: var(--cf-leading-tight);
+  letter-spacing: var(--cf-tracking-snug);
+  color: var(--cf-text-heading);
+}
+
+h1 { font-size: var(--cf-text-3xl); }
+h2 { font-size: var(--cf-text-2xl); }
+h3 { font-size: var(--cf-text-xl);  }
+h4 { font-size: var(--cf-text-lg);  }
+h5 { font-size: var(--cf-text-md);  }
+h6 { font-size: var(--cf-text-base); font-weight: var(--cf-weight-medium); }
+
+/* ── Code / editor surfaces ── */
+code, kbd, pre, samp,
+.cf-mono {
+  font-family: var(--cf-font-code);
+  font-feature-settings: 'liga' 1, 'calt' 1; /* JetBrains Mono ligatures */
+}
+
+pre {
+  overflow-x: auto;
+  background: var(--cf-editor-bg);
+  border: var(--cf-border-width) solid var(--cf-border-muted);
+  border-radius: var(--cf-radius-md);
+  padding: var(--cf-space-4) var(--cf-space-6);
+  font-size: var(--cf-text-sm);
+  line-height: var(--cf-leading-relaxed);
+  color: var(--cf-text-primary);
+}
+
+code:not(pre code) {
+  display: inline;
+  font-size: 0.875em;
+  padding: 0.15em 0.4em;
+  border-radius: var(--cf-radius-sm);
+  background: var(--cf-bg-subtle);
+  color: var(--cf-accent-bright);
+  border: var(--cf-border-width) solid var(--cf-border-muted);
+}
+
+/* ── Links ── */
+a {
+  color: var(--cf-accent-bright);
+  text-decoration: none;
+  transition: color var(--cf-transition-fast);
+}
+a:hover {
+  color: var(--cf-text-bright);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+a:focus-visible {
+  outline: 2px solid var(--cf-accent);
+  outline-offset: 3px;
+  border-radius: var(--cf-radius-sm);
+}
+
+/* ── Focus ring (global) ── */
+:focus-visible {
+  outline: 2px solid var(--cf-accent);
+  outline-offset: 2px;
+}
+
+/* ── Selection ── */
+::selection {
+  background-color: var(--cf-editor-selection);
+  color: var(--cf-text-bright);
+}
+
+/* ── Scrollbar (Webkit/Blink) ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--cf-bg-base);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--cf-border-base);
+  border-radius: var(--cf-radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cf-border-strong);
+}
+
+/* ── Lists ── */
+ul, ol {
+  padding-left: var(--cf-space-6);
+}
+
+/* ── HR ── */
+hr {
+  border: none;
+  border-top: var(--cf-border-width) solid var(--cf-border-muted);
+  margin: var(--cf-space-6) 0;
+}
+
+/* ── Images / media ── */
+img, svg, video {
+  display: block;
+  max-width: 100%;
+}
+
+
+/* =============================================================================
+   § UTILITY ANIMATION CLASSES
+   These are the "animation tokens in action" — pages apply them directly
+   or via JS class-toggling to animate content in.
+   ============================================================================= */
+
+/* Fade in */
+.cf-anim-fade-in {
+  animation: cf-fade-in var(--cf-dur-base) var(--cf-ease-out) both;
+}
+
+/* Fade up (most common page-enter pattern) */
+.cf-anim-fade-up {
+  animation: cf-fade-up var(--cf-dur-moderate) var(--cf-ease-out) both;
+}
+
+/* Verdict arrival */
+.cf-anim-verdict-pop {
+  animation: cf-verdict-pop var(--cf-dur-slow) var(--cf-ease-spring) both;
+}
+
+/* Timer pulse */
+.cf-anim-pulse {
+  animation: cf-pulse 1.8s var(--cf-ease-inout) infinite;
+}
+
+/* Skeleton shimmer — apply to loading placeholder elements */
+.cf-anim-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--cf-bg-subtle) 25%,
+    var(--cf-bg-overlay) 50%,
+    var(--cf-bg-subtle) 75%
+  );
+  background-size: 800px 100%;
+  animation: cf-shimmer 1.6s var(--cf-ease-linear) infinite;
+}
+
+/* Spin */
+.cf-anim-spin {
+  animation: cf-spin 0.9s var(--cf-ease-linear) infinite;
+}
+
+/* Accent glow throb (running submission indicator) */
+.cf-anim-glow-throb {
+  animation: cf-glow-throb 1.6s var(--cf-ease-inout) infinite;
+}
+
+/* Stagger helpers — add --cf-stagger-i (0–7) via inline style or JS */
+.cf-stagger { animation-delay: calc(var(--cf-stagger-i, 0) * 60ms); }
+
+
+/* =============================================================================
+   § PRIMITIVE COMPONENT TOKENS
+   These are not components — they are single-element token classes that pages
+   can compose (the actual component shells live in Step 12+).
+   ============================================================================= */
+
+/* Card surface */
+.cf-surface {
+  background: var(--cf-bg-raised);
+  border: var(--cf-border-width) solid var(--cf-border-muted);
+  border-radius: var(--cf-radius-lg);
+}
+
+/* Panel (slightly more elevated) */
+.cf-panel {
+  background: var(--cf-bg-overlay);
+  border: var(--cf-border-width) solid var(--cf-border-base);
+  border-radius: var(--cf-radius-xl);
+  box-shadow: var(--cf-shadow-md);
+}
+
+/* Chip / badge base */
+.cf-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cf-space-1);
+  padding: var(--cf-space-1) var(--cf-space-3);
+  border-radius: var(--cf-radius-full);
+  font-size: var(--cf-text-xs);
+  font-weight: var(--cf-weight-semibold);
+  letter-spacing: var(--cf-tracking-wide);
+  text-transform: uppercase;
+  border: var(--cf-border-width) solid transparent;
+}
+
+/* Verdict badge variants — extend .cf-chip */
+.cf-chip--ac    { color: var(--cf-verdict-AC);    background: var(--cf-success-dim); border-color: var(--cf-success);    }
+.cf-chip--wa    { color: var(--cf-verdict-WA);    background: var(--cf-danger-dim);  border-color: var(--cf-danger);     }
+.cf-chip--tle   { color: var(--cf-verdict-TLE);   background: var(--cf-info-dim);    border-color: var(--cf-info);       }
+.cf-chip--mle   { color: var(--cf-verdict-MLE);   background: rgba(167,139,250,0.12); border-color: #a78bfa;             }
+.cf-chip--re    { color: var(--cf-verdict-RE);    background: var(--cf-warning-dim); border-color: var(--cf-warning);    }
+.cf-chip--ce    { color: var(--cf-verdict-CE);    background: rgba(251,146,60,0.12); border-color: #fb923c;              }
+.cf-chip--infra { color: var(--cf-verdict-INFRA); background: var(--cf-bg-subtle);   border-color: var(--cf-border-base);}
+
+/* Divider */
+.cf-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--cf-border-muted);
+}
+
+/* Screen-reader only */
+.cf-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

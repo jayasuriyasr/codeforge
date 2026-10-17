@@ -1,0 +1,56 @@
+# CodeForge Arena — local infrastructure
+#
+#   docker compose up -d --build
+#
+# Brings up MongoDB + Redis and builds the codeforge/fat-judge sandbox image.
+# The API server and Vite client run on the host (`npm run dev`), not here.
+#
+# Ports match server/.env.example:  Mongo 27017,  Redis 6380 -> 6379.
+
+services:
+
+  mongo:
+    image: mongo:7
+    container_name: codeforge_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: codeforge
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: codeforge_redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Build-only: exists so `docker compose up --build` produces the judge image.
+  # The running judge sandboxes are created per-submission by the worker, not here.
+  fat-judge-build:
+    build:
+      context: ./judge
+      dockerfile: Dockerfile
+    image: codeforge/fat-judge:latest
+    container_name: codeforge_fat_judge_probe
+    command: /bin/true
+    restart: "no"
+
+volumes:
+  mongo_data:
+  redis_data:

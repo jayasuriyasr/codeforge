@@ -1,0 +1,73 @@
+/* Leaderboard.css */
+
+.leaderboard-panel {
+  padding: var(--cf-space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--cf-space-4);
+  height: 100%;
+}
+
+.leaderboard-title {
+  margin: 0;
+  font-size: var(--cf-text-lg);
+  color: var(--cf-text-heading);
+}
+
+.leaderboard-table-wrapper {
+  overflow-x: auto;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.leaderboard-table th {
+  font-size: var(--cf-text-xs);
+  color: var(--cf-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--cf-tracking-wide);
+  padding: var(--cf-space-3);
+  border-bottom: var(--cf-border-width) solid var(--cf-border-muted);
+}
+
+.leaderboard-table td {
+  padding: var(--cf-space-4) var(--cf-space-3);
+  border-bottom: var(--cf-border-width) solid var(--cf-border-muted);
+  color: var(--cf-text-primary);
+  font-size: var(--cf-text-sm);
+}
+
+.leaderboard-table tr:last-child td {
+  border-bottom: none;
+}
+
+.user-cell {
+  font-weight: var(--cf-weight-medium);
+  color: var(--cf-text-bright);
+}
+
+.score-cell {
+  font-weight: var(--cf-weight-bold);
+  color: var(--cf-success);
+}
+
+.penalty-cell {
+  color: var(--cf-text-muted);
+  font-family: var(--cf-font-code);
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--cf-text-muted);
+  font-style: italic;
+  padding: var(--cf-space-8) !important;
+}
+
+.loading-leaderboard {
+  padding: var(--cf-space-6);
+  text-align: center;
+  color: var(--cf-text-muted);
+}

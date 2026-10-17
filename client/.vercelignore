@@ -1,0 +1,5 @@
+# Not needed for the Vercel build — it installs and builds dist/ itself.
+node_modules
+dist
+test
+src/_legacy

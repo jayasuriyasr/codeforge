@@ -1,0 +1,29 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "test": "node --test --test-reporter=spec \"test/unit/**/*.test.js\"",
+    "test:integration": "node --test --test-reporter=spec --test-timeout=120000 \"test/integration/**/*.test.js\"",
+    "test:all": "npm test && npm run test:integration"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "mongoose": "^8.4.1",
+    "ioredis": "^5.4.1",
+    "bullmq": "^5.8.1",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
