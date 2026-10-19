@@ -151,7 +151,9 @@ if (!deploy.ok) {
   );
 }
 
-const url = deploy.stdout.split(/\r?\n/).filter(Boolean).pop();
+// stdout is the deployment URL — or, when the CLI runs non-interactively, JSON
+// that contains it. Take the last vercel.app URL either way.
+const url = deploy.stdout.match(/https:\/\/[^\s"']+\.vercel\.app/g)?.pop() || deploy.stdout.trim();
 console.log(`\n${green('✔')} ${bold(PROD ? 'Deployed to production' : 'Preview deployed')}: ${url}`);
 if (PROD) console.log(`  Your permanent site address is the "Aliased" / production URL printed above.`);
 console.log(`  Check: open the site, run  crossOriginIsolated  in the browser console → must be true.\n`);

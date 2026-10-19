@@ -5,10 +5,13 @@ See the [main README](../README.md) for the project overview.
 
 ```bash
 npm run dev            # dev server on http://localhost:5173
-npm run build          # validates problems + builds to dist/
+npm run build          # production build to dist/
 npm test               # unit tests (checker + judge)
-npm run gen:problems   # regenerate the sample problems
+npm run gen:problems   # regenerate the built-in problem JSON (content/problems)
 ```
+
+Problems, accounts and submissions live in Supabase — see `supabase/schema.sql`
+and `npm run db:setup` at the repo root.
 
 - [DEPLOY.md](DEPLOY.md): hosting on Vercel / Cloudflare Pages / Netlify
 - [STATUS.md](STATUS.md): language support and known limitations

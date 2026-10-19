@@ -14,6 +14,7 @@
   "dependencies": {
     "@gameguild/emception-browser": "^4.4.0",
     "@monaco-editor/react": "^4.7.0",
+    "@supabase/supabase-js": "^2.117.2",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.2"

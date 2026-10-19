@@ -6,13 +6,18 @@ import Verdict, { Chip } from '../components/Verdict.jsx';
 import { loadProblem } from '../lib/problems.js';
 import { renderMarkdown } from '../lib/md.js';
 import { LANGUAGES, MONACO_LANG, STARTERS } from '../lib/starters.js';
-import { getDraft, saveDraft, getLang, setLang, markSolved, isSolved } from '../lib/profile.js';
+import { getDraft, saveDraft, getLang, setLang, markSolved } from '../lib/profile.js';
+import { saveSubmission, loadMySubmissions } from '../lib/submissions.js';
+import { useAuth } from '../hooks/useAuth.js';
+import { useSolved, markSolvedId } from '../hooks/useSolved.js';
 import {
-  judgePractice, runSample, warmup, checkToolchain, toolchainInfo,
+  judgePractice, runSample, runCustom, warmup, checkToolchain, toolchainInfo,
 } from '../judge/index.js';
 import './Solve.css';
 
 const EXPERIMENTAL = new Set(['c', 'cpp', 'java']);
+const LANG_LABEL = Object.fromEntries(LANGUAGES.map((l) => [l.id, l.label]));
+const CUSTOM_STATUS = { OK: 'Ran successfully', TLE: 'Time Limit Exceeded', MLE: 'Memory Limit Exceeded', RE: 'Runtime Error', CE: 'Compile Error', UNAVAILABLE: 'Toolchain unavailable', UNSUPPORTED: 'Language not supported' };
 
 export default function Solve() {
   const { slug } = useParams();
@@ -23,8 +28,15 @@ export default function Solve() {
   const [code, setCode] = useState('');
   const editorRef = useRef(null);
 
-  const [tab, setTab] = useState('statement'); // statement | tests
+  const { user } = useAuth();
+  const isSolved = useSolved();
+
+  const [tab, setTab] = useState('statement'); // statement | tests | custom | subs
   const [samples, setSamples] = useState([]);   // Run-samples results
+  const [customInput, setCustomInput] = useState('');
+  const [customResult, setCustomResult] = useState(null);
+  const [saveNote, setSaveNote] = useState(null); // { ok, text } after a judged run
+  const [mySubs, setMySubs] = useState(null);
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState(null);
   const [stage, setStage] = useState('');       // human hint while running
@@ -35,8 +47,23 @@ export default function Solve() {
   // ── load problem ─────────────────────────────────────────────────────────
   useEffect(() => {
     setProblem(null); setErr(''); setResult(null); setSamples([]);
-    loadProblem(slug).then(setProblem).catch((e) => setErr(e.message));
+    setCustomResult(null); setSaveNote(null); setMySubs(null);
+    loadProblem(slug)
+      .then((p) => {
+        setProblem(p);
+        setCustomInput(p.testCases.find((c) => c.sample)?.input ?? '');
+      })
+      .catch((e) => setErr(e.message));
   }, [slug]);
+
+  // ── my submissions for this problem (signed in) ─────────────────────────
+  const problemId = problem?.id;
+  useEffect(() => {
+    if (tab !== 'subs' || !user || !problemId || mySubs) return;
+    loadMySubmissions({ problemId, limit: 30, withCode: true })
+      .then(setMySubs)
+      .catch((e) => setMySubs({ error: e.message }));
+  }, [tab, user, problemId, mySubs]);
 
   // ── load draft when problem / language changes ───────────────────────────
   useEffect(() => {
@@ -106,8 +133,45 @@ export default function Solve() {
     setRunning(false); setProgress(null); setStage('');
   }
 
+  async function handleRunCustom() {
+    if (!problem) return;
+    setTab('custom');
+    setRunning(true); setCustomResult(null);
+    setStage(firstBuildHint() || 'Running your input…');
+    try {
+      const r = await runCustom({
+        language, code, input: customInput,
+        timeLimitSec: problem.timeLimitSec, memoryLimitMB: problem.memoryLimitMB,
+      });
+      setCustomResult(r);
+      if (NEEDS_BUILD.has(language)) setEverRan((s) => new Set(s).add(language));
+    } finally {
+      setRunning(false); setStage('');
+    }
+  }
+
+  async function storeSubmission(r) {
+    if (!user) {
+      setSaveNote({ ok: false, guest: true, text: 'Not saved — log in to keep a history of your submissions.' });
+      return;
+    }
+    try {
+      const saved = await saveSubmission({
+        problemId: problem.id, language, code, result: r, totalCases: problem.testCases.length,
+      });
+      if (saved) {
+        if (r.verdict === 'AC') markSolvedId(problem.id);
+        setMySubs(null); // refetch on next open
+        setSaveNote({ ok: true, text: 'Saved to your submissions.' });
+      }
+    } catch (e) {
+      setSaveNote({ ok: false, text: `Couldn’t save this submission: ${e.message}` });
+    }
+  }
+
   async function handleJudge() {
     if (!problem) return;
+    setSaveNote(null);
     setRunning(true); setResult(null); setSamples([]);
     setStage(firstBuildHint() || 'Judging every test case…');
     setProgress({ done: 0, total: problem.testCases.length });
@@ -121,7 +185,8 @@ export default function Solve() {
         },
       });
       setResult(r);
-      if (r.verdict === 'AC') markSolved(slug);
+      if (r.verdict === 'AC' && !user) markSolved(slug);   // guests: progress kept in this browser
+      storeSubmission(r);
     } catch (e) {
       setResult({ verdict: 'RE', error: String(e.message || e), cases: [] });
     } finally {
@@ -133,6 +198,19 @@ export default function Solve() {
     setTab('tests');
     // stash it as a "custom sample" so the user can Run it
     setSamples([{ i: 0, input: tc.input, expected: tc.expectedOutput, status: 'PENDING', actualOutput: '' }]);
+  }
+
+  function loadSubmissionCode(s) {
+    if (s.language !== language) {
+      saveDraft(slug, language, code);
+      setLanguage(s.language); setLang(s.language);
+      warmup(s.language);
+    }
+    // The draft effect reloads the editor from the saved draft on a language
+    // change, so store this submission's code as that draft first.
+    saveDraft(slug, s.language, s.code);
+    setCode(s.code);
+    setResult(null); setSamples([]);
   }
 
   if (err) {
@@ -156,7 +234,10 @@ export default function Solve() {
         <section className="solve-left">
           <div className="solve-lhead">
             <Link to="/" className="solve-back">← Problems</Link>
-            <h1>{problem.title} {isSolved(slug) && <span className="solve-done">✓ solved</span>}</h1>
+            <h1>
+              {problem.title} {isSolved(problem) && <span className="solve-done">✓ solved</span>}
+              {!problem.published && <span className="pill pill--draft solve-draft">draft — only you can see this</span>}
+            </h1>
             <div className="solve-limits">
               <span className={`cat-diff cat-diff--${problem.difficulty}`}>{problem.difficulty}</span>
               <span>{problem.timeLimitSec}s</span><span>{problem.memoryLimitMB}MB</span>
@@ -167,6 +248,8 @@ export default function Solve() {
           <div className="solve-tabs">
             <button className={tab === 'statement' ? 'on' : ''} onClick={() => setTab('statement')}>Statement</button>
             <button className={tab === 'tests' ? 'on' : ''} onClick={() => setTab('tests')}>Sample tests ({sampleCases.length})</button>
+            <button className={tab === 'custom' ? 'on' : ''} onClick={() => setTab('custom')}>Custom input</button>
+            {user && <button className={tab === 'subs' ? 'on' : ''} onClick={() => setTab('subs')}>My submissions</button>}
           </div>
 
           <div className="solve-scroll">
@@ -205,6 +288,50 @@ export default function Solve() {
                 ))}
               </div>
             )}
+            {tab === 'custom' && (
+              <div className="solve-custom">
+                <p className="solve-custom-help">
+                  Try your code on your own input. You’ll see exactly what your program prints — there is no expected
+                  answer here, so it isn’t marked right or wrong.
+                </p>
+                <label className="field">
+                  <span>Your input</span>
+                  <textarea rows={7} value={customInput} onChange={(e) => setCustomInput(e.target.value)} spellCheck={false} />
+                </label>
+                <button className="btn-ghost" disabled={running} onClick={handleRunCustom}>
+                  {running ? 'Running…' : 'Run with this input'}
+                </button>
+                {running && stage && <p className="solve-custom-help">{stage}</p>}
+                {customResult && (
+                  <div className="solve-sample">
+                    <div className="solve-sample-h">
+                      <span>Your output</span>
+                      <Chip v={customResult.status === 'OK' ? 'AC' : customResult.status}>
+                        {CUSTOM_STATUS[customResult.status] || customResult.status}
+                        {customResult.wallMs != null ? ` · ${customResult.wallMs}ms` : ''}
+                      </Chip>
+                    </div>
+                    <pre className="solve-custom-out">{customResult.output || '(no output)'}</pre>
+                  </div>
+                )}
+              </div>
+            )}
+            {tab === 'subs' && user && (
+              <div className="solve-subs">
+                {!mySubs && <div className="solve-loading">Loading…</div>}
+                {mySubs?.error && <div className="notice notice--error">{mySubs.error}</div>}
+                {Array.isArray(mySubs) && mySubs.length === 0 && <p className="solve-custom-help">No submissions for this problem yet. Click Judge to make one.</p>}
+                {Array.isArray(mySubs) && mySubs.map((s) => (
+                  <div key={s.id} className="solve-sub">
+                    <Chip v={s.verdict} />
+                    <span>{LANG_LABEL[s.language] || s.language}</span>
+                    <span className="solve-sub-meta">{s.passed}/{s.total} tests{s.runtime_ms != null ? ` · ${s.runtime_ms}ms` : ''}</span>
+                    <span className="solve-sub-meta">{new Date(s.created_at).toLocaleString()}</span>
+                    <button className="btn-ghost btn-sm" onClick={() => loadSubmissionCode(s)}>Load code</button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
@@ -234,7 +361,13 @@ export default function Solve() {
 
           <div className="solve-run">
             <div className="solve-result">
-              <Verdict result={result} running={running} progress={progress} stage={stage} onUseCase={loadCaseInput} />
+              <Verdict result={result} running={running && tab !== 'custom'} progress={progress} stage={stage} onUseCase={loadCaseInput} />
+              {result && saveNote && (
+                <div className={`solve-save ${saveNote.ok ? 'is-ok' : ''}`}>
+                  {saveNote.text}
+                  {saveNote.guest && <> <Link to="/login" state={{ from: `/p/${slug}` }}>Log in</Link></>}
+                </div>
+              )}
             </div>
             <div className="solve-buttons">
               <button className="btn-ghost" disabled={running} onClick={handleRunSamples}>Run samples</button>

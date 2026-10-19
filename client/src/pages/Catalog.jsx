@@ -1,20 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Shell from '../components/Shell.jsx';
-import { loadIndex, DIFFICULTY_ORDER } from '../lib/problems.js';
-import { solvedSet } from '../lib/profile.js';
-import { useProfile } from '../hooks/useProfile.js';
+import { loadIndex } from '../lib/problems.js';
+import { useSolved } from '../hooks/useSolved.js';
 import './Catalog.css';
 
 const DIFF_LABEL = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
 
 export default function Catalog() {
-  useProfile(); // re-render when solved set changes
   const [problems, setProblems] = useState(null);
   const [err, setErr] = useState('');
   const [q, setQ] = useState('');
   const [diff, setDiff] = useState('all');
-  const solved = solvedSet();
+  const isSolved = useSolved();
 
   useEffect(() => {
     loadIndex().then(setProblems).catch((e) => setErr(e.message));
@@ -34,7 +32,7 @@ export default function Catalog() {
     <Shell>
       <header className="cat-head">
         <h1>Problems</h1>
-        <p>Solve them in your browser — JavaScript, Python, C, C++ and Java all compile and run locally. Nothing is sent to a server.</p>
+        <p>Solve them in your browser — JavaScript, Python, C, C++ and Java all compile and run on your own machine. Log in to save your submissions and track progress.</p>
       </header>
 
       {err && <div className="cat-error">Couldn’t load the problem list: {err}</div>}
@@ -60,8 +58,8 @@ export default function Catalog() {
         {shown.map((p) => (
           <li key={p.slug}>
             <Link to={`/p/${p.slug}`} className="cat-card">
-              <span className={`cat-mark ${solved.has(p.slug) ? 'is-solved' : ''}`} aria-hidden>
-                {solved.has(p.slug) ? '✓' : ''}
+              <span className={`cat-mark ${isSolved(p) ? 'is-solved' : ''}`} aria-hidden>
+                {isSolved(p) ? '✓' : ''}
               </span>
               <span className="cat-title">{p.title}</span>
               <span className={`cat-diff cat-diff--${p.difficulty}`}>{DIFF_LABEL[p.difficulty]}</span>

@@ -1,16 +1,21 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { execFileSync } from 'node:child_process';
 
-// Regenerate the static problem JSON before dev/build.
-function buildProblems() {
+// The Supabase project URL and anon key are public by design — what a visitor
+// may do is enforced by Row Level Security in the database. Accept the names
+// the Vercel ↔ Supabase integration sets, plus VITE_* for a manual setup.
+// Only these two values reach the browser bundle; never the service-role key.
+function supabaseEnv(mode) {
+  const env = { ...loadEnv(mode, process.cwd(), ''), ...process.env };
+  const pick = (...names) => names.map((n) => env[n]).find(Boolean) || '';
   return {
-    name: 'build-problems',
-    buildStart() {
-      execFileSync(process.execPath, ['scripts/build-problems.mjs'], { stdio: 'inherit' });
-    },
+    'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(
+      pick('VITE_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_URL')),
+    'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(
+      pick('VITE_SUPABASE_ANON_KEY', 'NEXT_PUBLIC_SUPABASE_ANON_KEY', 'SUPABASE_ANON_KEY',
+        'VITE_SUPABASE_PUBLISHABLE_KEY', 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'SUPABASE_PUBLISHABLE_KEY')),
   };
 }
 
@@ -33,13 +38,14 @@ function stampServiceWorker() {
   };
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   // Set to '/<repo>/' for GitHub Pages project sites; '/' for Cloudflare Pages / a custom domain.
   base: process.env.VITE_BASE || '/',
-  plugins: [buildProblems(), react(), stampServiceWorker()],
+  plugins: [react(), stampServiceWorker()],
+  define: supabaseEnv(mode),
   build: {
     target: 'es2022',
-    // The big test-case JSON lives in public/ and is copied verbatim.
+    // Problems and test cases live in Supabase, not in the bundle.
     // Monaco is loaded from a CDN at runtime by @monaco-editor/react, so the
     // JS bundle stays small; default code-splitting is fine.
     chunkSizeWarningLimit: 1500,
@@ -72,4 +78,4 @@ export default defineConfig({
       'Cross-Origin-Embedder-Policy': 'require-corp',
     },
   },
-});
+}));

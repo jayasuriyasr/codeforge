@@ -3,3 +3,5 @@ node_modules
 dist
 test
 src/_legacy
+# Local secrets (database password) — Vercel has its own copies.
+.env*

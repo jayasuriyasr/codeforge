@@ -28,6 +28,11 @@ Everything is pre-configured: `client/vercel.json` (build settings, COOP/COEP +
 security headers, cache rules, SPA rewrite) and `client/package-lock.json`
 (pins the exact tested dependency versions for Vercel's install).
 
+The app reads problems and accounts from Supabase, so the Vercel project needs two
+environment variables (Settings → Environment Variables): `SUPABASE_URL` and
+`SUPABASE_PUBLISHABLE_KEY`. Both are public by design; the database's row-level
+security decides what each visitor can do. Never add the secret key to the site.
+
 From the repo root:
 
 ```bash

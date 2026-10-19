@@ -1,7 +1,9 @@
 # CodeForge client — build status
 
-Static PWA. Every submission is judged in the visitor's browser; no server, no
-accounts, no database. Target host: Cloudflare Pages (see `DEPLOY.md`). Target
+Static PWA. Every submission is judged in the visitor's browser; there is no
+backend server. Problems, optional accounts and saved submissions live in Supabase
+(PostgreSQL with row-level security — `../supabase/schema.sql`). Hosted on Vercel
+(see `DEPLOY.md`). Target
 scale: a non-commercial college project, ≤ 10 000 users, $0 for years — feasible
 because all compute is on the client and all toolchain bandwidth is on free CDNs.
 

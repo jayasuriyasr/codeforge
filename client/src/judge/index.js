@@ -143,6 +143,30 @@ export async function runSample({ language, code, input, expectedOutput, checker
 }
 
 /**
+ * Run code on the user's own input and return what it printed. There is no
+ * expected answer, so no AC/WA — only whether it ran (OK) or failed to
+ * (CE/RE/TLE/MLE). Used by the "Custom input" tab.
+ * status: 'OK'|'TLE'|'MLE'|'RE'|'CE'|'UNSUPPORTED'|'UNAVAILABLE'
+ */
+export async function runCustom({ language, code, input, timeLimitSec = 2, memoryLimitMB }) {
+  const run = RUNNERS[language];
+  if (!run) return { status: 'UNSUPPORTED', output: '' };
+  let r;
+  try {
+    r = await run(code, input ?? '', Math.round(timeLimitSec * 1000), memoryLimitMB ?? Infinity);
+  } catch (err) {
+    if (isUnavailable(err)) return { status: 'UNAVAILABLE', output: err.message };
+    return { status: 'RE', output: String(err.message || err) };
+  }
+  if (r.status === 'CE') return { status: 'CE', output: r.compileError || 'compilation failed', wallMs: r.wallMs };
+  if (r.status !== 'OK') {
+    const printed = r.stdout ? `${String(r.stdout).trimEnd()}\n` : '';
+    return { status: r.status === 'OLE' ? 'RE' : r.status, output: printed + (r.error || ''), wallMs: r.wallMs, memMb: r.memMb };
+  }
+  return { status: 'OK', output: String(r.stdout ?? '').trimEnd(), wallMs: r.wallMs, memMb: r.memMb };
+}
+
+/**
  * Judge a submission against every test case, in the browser.
  * @returns {Promise<{ verdict, runtimeMs, memoryMB, compileError, cases[], failedIndex, failedTestCase }>}
  */

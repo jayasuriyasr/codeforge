@@ -44,11 +44,8 @@
 .solve-run { border-top: 1px solid var(--cf-border-muted); background: var(--cf-bg-raised); display: flex; flex-direction: column; max-height: 46%; }
 .solve-result { overflow-y: auto; padding: var(--cf-space-3) var(--cf-space-4); }
 .solve-result:empty { display: none; }
+.solve-buttons .btn-primary { margin-left: auto; }
 .solve-buttons { display: flex; gap: var(--cf-space-3); padding: var(--cf-space-3) var(--cf-space-4); border-top: 1px solid var(--cf-border-muted); }
-.btn-ghost, .btn-primary { padding: var(--cf-space-2) var(--cf-space-5); border-radius: var(--cf-radius-md); font-weight: 600; cursor: pointer; font-family: var(--cf-font-ui); font-size: var(--cf-text-sm, .9rem); }
-.btn-ghost { background: var(--cf-bg-overlay); border: 1px solid var(--cf-border-base); color: var(--cf-text-primary); }
-.btn-primary { background: var(--cf-accent); border: none; color: #fff; margin-left: auto; }
-.btn-ghost:disabled, .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
 
 @media (max-width: 860px) {
   .solve { grid-template-columns: 1fr; height: auto; }
@@ -57,3 +54,16 @@
   .solve-editor { height: 50vh; }
   .solve-run { max-height: none; }
 }
+
+/* ── custom input / my submissions / save note ── */
+.solve-draft { margin-left: var(--cf-space-2); vertical-align: middle; }
+.solve-custom, .solve-subs { display: flex; flex-direction: column; gap: var(--cf-space-3); align-items: stretch; }
+.solve-custom > .btn-ghost { align-self: flex-start; }
+.solve-custom-help { color: var(--cf-text-secondary); font-size: var(--cf-text-xs); line-height: 1.5; }
+.solve-custom-out { margin: 0; padding: var(--cf-space-2); background: var(--cf-bg-base); border: 1px solid var(--cf-border-muted); border-radius: var(--cf-radius-sm); font-family: var(--cf-font-code); font-size: var(--cf-text-2xs); white-space: pre-wrap; word-break: break-all; max-height: 260px; overflow: auto; color: var(--cf-text-primary); }
+.solve-sub { display: flex; align-items: center; gap: var(--cf-space-3); flex-wrap: wrap; padding: var(--cf-space-2) var(--cf-space-3); background: var(--cf-bg-raised); border: 1px solid var(--cf-border-muted); border-radius: var(--cf-radius-sm); font-size: var(--cf-text-xs); color: var(--cf-text-primary); }
+.solve-sub .btn-sm { margin-left: auto; }
+.solve-sub-meta { font-family: var(--cf-font-code); font-size: var(--cf-text-2xs); color: var(--cf-text-muted); }
+.solve-save { margin-top: var(--cf-space-2); font-size: var(--cf-text-xs); color: var(--cf-text-muted); }
+.solve-save.is-ok { color: var(--cf-success); }
+.solve-save a { color: var(--cf-accent-bright); }

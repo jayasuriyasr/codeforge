@@ -1,0 +1,55 @@
+.admin-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--cf-space-4); flex-wrap: wrap; }
+.admin-head .page-lede { margin-bottom: var(--cf-space-4); }
+.admin-gap { margin: var(--cf-space-4) 0; }
+.admin-gap-sm { margin-top: var(--cf-space-2); }
+.admin-empty { display: flex; flex-direction: column; align-items: flex-start; gap: var(--cf-space-3); color: var(--cf-text-secondary); }
+
+.admin-table-wrap { overflow-x: auto; border: 1px solid var(--cf-border-muted); border-radius: var(--cf-radius-md); }
+.admin-table { width: 100%; border-collapse: collapse; font-size: var(--cf-text-sm); }
+.admin-table th {
+  text-align: left; font-size: var(--cf-text-2xs); text-transform: uppercase; letter-spacing: .06em;
+  color: var(--cf-text-muted); font-weight: 600; padding: var(--cf-space-3) var(--cf-space-4);
+  background: var(--cf-bg-raised); border-bottom: 1px solid var(--cf-border-muted);
+}
+.admin-table td { padding: var(--cf-space-3) var(--cf-space-4); border-bottom: 1px solid var(--cf-border-muted); vertical-align: middle; }
+.admin-table tr:last-child td { border-bottom: none; }
+.admin-title { color: var(--cf-text-heading); font-weight: 600; text-decoration: none; }
+.admin-title:hover { color: var(--cf-accent-bright); }
+.admin-slug, .admin-num { font-family: var(--cf-font-code); font-size: var(--cf-text-2xs); color: var(--cf-text-muted); }
+.admin-num { white-space: nowrap; }
+.admin-actions { display: flex; gap: var(--cf-space-2); justify-content: flex-end; }
+
+/* ── editor ── */
+.editor { display: flex; flex-direction: column; gap: var(--cf-space-4); }
+.editor-section { display: flex; flex-direction: column; gap: var(--cf-space-4); }
+.editor-section h2 { font-size: var(--cf-text-md); color: var(--cf-text-heading); }
+.editor-section-h { display: flex; align-items: center; justify-content: space-between; gap: var(--cf-space-3); }
+.editor-count { font-family: var(--cf-font-code); font-size: var(--cf-text-2xs); color: var(--cf-text-muted); font-weight: 400; margin-left: var(--cf-space-2); }
+.editor-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--cf-space-4); }
+.editor-wide { grid-column: 1 / -1; }
+.editor-hint { color: var(--cf-text-muted); font-size: var(--cf-text-xs); margin-top: calc(-1 * var(--cf-space-2)); }
+.editor-preview { border: 1px solid var(--cf-border-muted); border-radius: var(--cf-radius-sm); padding: var(--cf-space-4); min-height: 200px; }
+
+.editor-toggle { display: flex; background: var(--cf-bg-base); border: 1px solid var(--cf-border-muted); border-radius: var(--cf-radius-md); padding: 2px; }
+.editor-toggle button { background: none; border: none; color: var(--cf-text-secondary); padding: 4px var(--cf-space-3); border-radius: var(--cf-radius-sm); cursor: pointer; font-family: var(--cf-font-ui); font-size: var(--cf-text-xs); }
+.editor-toggle button.on { background: var(--cf-bg-overlay); color: var(--cf-text-bright); }
+
+.editor-cases { display: flex; flex-direction: column; gap: var(--cf-space-3); }
+.editor-case { border: 1px solid var(--cf-border-muted); border-radius: var(--cf-radius-md); padding: var(--cf-space-3); background: var(--cf-bg-base); }
+.editor-case.is-sample { border-color: var(--cf-accent-dim); }
+.editor-case-h { display: flex; align-items: center; gap: var(--cf-space-4); flex-wrap: wrap; margin-bottom: var(--cf-space-3); font-size: var(--cf-text-sm); color: var(--cf-text-heading); }
+.editor-case-tools { margin-left: auto; display: flex; gap: var(--cf-space-2); }
+.editor-case-io { display: grid; grid-template-columns: 1fr 1fr; gap: var(--cf-space-3); }
+.editor-check { display: flex; align-items: center; gap: var(--cf-space-2); color: var(--cf-text-secondary); font-size: var(--cf-text-sm); cursor: pointer; }
+.editor-check input { accent-color: var(--cf-accent); width: 16px; height: 16px; }
+
+.editor-submit { flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.editor-publish { align-items: flex-start; max-width: 60ch; }
+.editor-publish input { margin-top: 3px; flex-shrink: 0; }
+.editor-buttons { display: flex; gap: var(--cf-space-3); }
+
+@media (max-width: 760px) {
+  .editor-grid { grid-template-columns: 1fr; }
+  .editor-case-io { grid-template-columns: 1fr; }
+  .admin-actions { justify-content: flex-start; flex-wrap: wrap; }
+}
