@@ -7,6 +7,11 @@
 //        so `wasmMemory.buffer.byteLength − (size right after init)` is the peak
 //        bytes the solution forced to be allocated. If that exceeds the limit,
 //        or Python raises MemoryError (grow() refused), the verdict is MLE.
+//        Because the heap never shrinks, a run after a memory-heavy one would
+//        inherit its size. So an over-limit reading only counts if the run
+//        started from a clean heap; otherwise Pyodide is restarted and the test
+//        run again. A batch that leaves the heap grown also gets a fresh
+//        Pyodide once the page is idle, so the next batch reads clean numbers.
 //
 // Asset source (first that loads wins): VITE_PYODIDE_URL, /pyodide/, then the CDN.
 
@@ -53,6 +58,7 @@ self.onmessage = async (e) => {
   if (type === 'run') {
     const { code, input, id } = e.data;
     const py = self.__py;
+    let before = 0;
     try {
       try { py.runPython('import gc; gc.collect()'); } catch (_) {}   // release last run's objects
 
@@ -78,19 +84,20 @@ self.onmessage = async (e) => {
       // a PyProxy keeps the whole namespace (e.g. a 10^5-element dp list) alive
       // until JS garbage collection, so the heap reading crept up case by case.
       const globals = py.toPy({});
+      before = heapBytes();
       try {
         await py.runPythonAsync(code, { globals });
       } finally {
         try { globals.clear(); } catch (_) {}
         globals.destroy();
       }
-      self.postMessage({ type: 'result', id, ok: true, stdout: out, heap: heapBytes(), baseline: self.__baseline });
+      self.postMessage({ type: 'result', id, ok: true, stdout: out, before, heap: heapBytes(), baseline: self.__baseline });
     } catch (err) {
       const msg = String(err && err.message || err);
       self.postMessage({
         type: 'result', id, ok: false, error: msg,
         oom: MEM_ERR_RE.test(msg),
-        heap: heapBytes(), baseline: self.__baseline,
+        before, heap: heapBytes(), baseline: self.__baseline,
       });
     }
   }
@@ -121,6 +128,15 @@ export function initPython() {
 }
 
 let seq = 0;
+const MB = 1024 * 1024;
+const CLEAN_MB = 16;          // heap grown less than this since init counts as clean
+const RECYCLE_IDLE_MS = 1500; // a run starting later than this is a new batch
+
+let recycleTimer = null;
+
+function restartPython() {
+  worker?.terminate(); worker = null; initPromise = null;
+}
 
 /**
  * @param {string} code
@@ -129,7 +145,8 @@ let seq = 0;
  * @param {number} [memLimitMb]   peak-allocation ceiling; exceeding it → status 'MLE'
  * @returns {Promise<{status:'OK'|'TLE'|'MLE'|'RE', wallMs:number, memMb:number, stdout:string, error?:string}>}
  */
-export async function runPython(code, input, timeLimitMs, memLimitMb = Infinity) {
+export async function runPython(code, input, timeLimitMs, memLimitMb = Infinity, isRetry = false) {
+  clearTimeout(recycleTimer);
   await initPython();
   const w = ensureWorker();
   const id = ++seq;
@@ -139,7 +156,7 @@ export async function runPython(code, input, timeLimitMs, memLimitMb = Infinity)
   return new Promise((resolve) => {
     const timer = setTimeout(() => {
       w.removeEventListener('message', onMsg);
-      worker.terminate(); worker = null; initPromise = null;   // Pyodide can't be interrupted → kill it
+      restartPython();   // Pyodide can't be interrupted → kill it
       resolve({ status: 'TLE', wallMs: Math.round(performance.now() - start), memMb: 0, stdout: '' });
     }, timeLimitMs + 400);
 
@@ -148,8 +165,21 @@ export async function runPython(code, input, timeLimitMs, memLimitMb = Infinity)
       clearTimeout(timer);
       w.removeEventListener('message', onMsg);
       const wallMs = Math.round(performance.now() - start);
-      const memMb = Math.max(0, ((e.data.heap || 0) - (e.data.baseline || 0)) / (1024 * 1024));
+      const baseline = e.data.baseline || 0;
+      const memMb = Math.max(0, ((e.data.heap || 0) - baseline) / MB);
       const overMem = e.data.oom || memMb > memLimitMb + SLACK_MB;
+      const startedClean = ((e.data.before || 0) - baseline) / MB <= CLEAN_MB;
+      const dirtyAfter = memMb > CLEAN_MB;
+
+      // Over the limit, but part of the heap was left by an earlier run: measure
+      // this test again on a fresh heap and let that result stand.
+      if (overMem && !startedClean && !isRetry) {
+        restartPython();
+        return resolve(runPython(code, input, timeLimitMs, memLimitMb, true));
+      }
+      if (dirtyAfter) {
+        recycleTimer = setTimeout(() => { restartPython(); initPython().catch(() => {}); }, RECYCLE_IDLE_MS);
+      }
 
       if (overMem) return resolve({ status: 'MLE', wallMs, memMb, stdout: e.data.stdout || '' });
       if (!e.data.ok) return resolve({ status: 'RE', wallMs, memMb, stdout: '', error: e.data.error });
