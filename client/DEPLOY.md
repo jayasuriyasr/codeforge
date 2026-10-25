@@ -52,6 +52,11 @@ saved in `client/.vercel/`), then deploys to production and prints the URL.
 via `npx`, so nothing needs to be installed globally. To point at a different
 account or project, delete `client/.vercel/` and run again.
 
+**Enabling Java:** CheerpJ runs javac from `tools.jar` (from a Java 8 JDK, e.g.
+Eclipse Temurin 8: `lib/tools.jar`, ~18 MB, GPLv2 + Classpath Exception), which it
+reads from this site's root. Put it at `client/public/tools.jar` and redeploy — the
+Solve page detects it and switches Java on.
+
 **Git instead of CLI:** import the repo in the Vercel dashboard and set **Root
 Directory** to `client`. `vercel.json` supplies everything else.
 

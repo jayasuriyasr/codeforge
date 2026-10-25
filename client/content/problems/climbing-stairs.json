@@ -8,7 +8,7 @@
   ],
   "timeLimitSec": 2,
   "memoryLimitMB": 64,
-  "statement": "You climb a staircase of `n` steps, 1 or 2 at a time. How many distinct ways?\n\n### Input\nA single integer `n` (`1 <= n <= 45`).\n\n### Output\nThe number of ways.",
+  "statement": "You climb a staircase of `n` steps, taking 1 or 2 steps at a time. How many distinct ways are there to reach the top?\n\nThe answer grows very fast, so print it **modulo 1 000 000 007** (`10^9 + 7`).\n\n### Input\nA single integer `n` (`1 <= n <= 10^5`).\n\n### Output\nThe number of ways, modulo `10^9 + 7`.\n\n### Notes\n- `n = 3` has 3 ways: 1+1+1, 1+2 and 2+1.\n- The exact answer passes `10^9 + 7` at `n = 44`, overflows a 64-bit integer at `n = 92` and has about 20 900 digits at `n = 10^5`, so keep the numbers small by taking the modulo at every step.\n- Plain recursion is exponential and runs out of time. Memoized recursion goes `n` calls deep, which can overflow the stack for large `n`; a loop is the safe choice.\n- There are 1000 test cases: every `n` up to 45, the overflow boundaries above, and random `n` up to `10^5`.",
   "testCases": [
     {
       "input": "2",
@@ -31,15 +31,4990 @@
       "sample": false
     },
     {
+      "input": "5",
+      "expectedOutput": "8",
+      "sample": false
+    },
+    {
+      "input": "6",
+      "expectedOutput": "13",
+      "sample": false
+    },
+    {
+      "input": "7",
+      "expectedOutput": "21",
+      "sample": false
+    },
+    {
+      "input": "8",
+      "expectedOutput": "34",
+      "sample": false
+    },
+    {
+      "input": "9",
+      "expectedOutput": "55",
+      "sample": false
+    },
+    {
       "input": "10",
       "expectedOutput": "89",
       "sample": false
     },
     {
-      "input": "45",
-      "expectedOutput": "1836311903",
+      "input": "11",
+      "expectedOutput": "144",
+      "sample": false
+    },
+    {
+      "input": "12",
+      "expectedOutput": "233",
+      "sample": false
+    },
+    {
+      "input": "13",
+      "expectedOutput": "377",
+      "sample": false
+    },
+    {
+      "input": "14",
+      "expectedOutput": "610",
+      "sample": false
+    },
+    {
+      "input": "15",
+      "expectedOutput": "987",
+      "sample": false
+    },
+    {
+      "input": "16",
+      "expectedOutput": "1597",
+      "sample": false
+    },
+    {
+      "input": "17",
+      "expectedOutput": "2584",
+      "sample": false
+    },
+    {
+      "input": "18",
+      "expectedOutput": "4181",
+      "sample": false
+    },
+    {
+      "input": "19",
+      "expectedOutput": "6765",
+      "sample": false
+    },
+    {
+      "input": "20",
+      "expectedOutput": "10946",
+      "sample": false
+    },
+    {
+      "input": "21",
+      "expectedOutput": "17711",
+      "sample": false
+    },
+    {
+      "input": "22",
+      "expectedOutput": "28657",
+      "sample": false
+    },
+    {
+      "input": "23",
+      "expectedOutput": "46368",
+      "sample": false
+    },
+    {
+      "input": "24",
+      "expectedOutput": "75025",
+      "sample": false
+    },
+    {
+      "input": "25",
+      "expectedOutput": "121393",
+      "sample": false
+    },
+    {
+      "input": "26",
+      "expectedOutput": "196418",
+      "sample": false
+    },
+    {
+      "input": "27",
+      "expectedOutput": "317811",
+      "sample": false
+    },
+    {
+      "input": "28",
+      "expectedOutput": "514229",
+      "sample": false
+    },
+    {
+      "input": "29",
+      "expectedOutput": "832040",
+      "sample": false
+    },
+    {
+      "input": "30",
+      "expectedOutput": "1346269",
+      "sample": false
+    },
+    {
+      "input": "31",
+      "expectedOutput": "2178309",
+      "sample": false
+    },
+    {
+      "input": "32",
+      "expectedOutput": "3524578",
+      "sample": false
+    },
+    {
+      "input": "33",
+      "expectedOutput": "5702887",
+      "sample": false
+    },
+    {
+      "input": "34",
+      "expectedOutput": "9227465",
+      "sample": false
+    },
+    {
+      "input": "35",
+      "expectedOutput": "14930352",
+      "sample": false
+    },
+    {
+      "input": "36",
+      "expectedOutput": "24157817",
+      "sample": false
+    },
+    {
+      "input": "37",
+      "expectedOutput": "39088169",
+      "sample": false
+    },
+    {
+      "input": "38",
+      "expectedOutput": "63245986",
+      "sample": false
+    },
+    {
+      "input": "39",
+      "expectedOutput": "102334155",
+      "sample": false
+    },
+    {
+      "input": "40",
+      "expectedOutput": "165580141",
+      "sample": false
+    },
+    {
+      "input": "41",
+      "expectedOutput": "267914296",
+      "sample": false
+    },
+    {
+      "input": "42",
+      "expectedOutput": "433494437",
+      "sample": false
+    },
+    {
+      "input": "43",
+      "expectedOutput": "701408733",
+      "sample": false
+    },
+    {
+      "input": "44",
+      "expectedOutput": "134903163",
       "sample": false,
-      "label": "fits in 32-bit"
+      "label": "first answer above 10^9+7 — needs the modulo"
+    },
+    {
+      "input": "45",
+      "expectedOutput": "836311896",
+      "sample": false
+    },
+    {
+      "input": "46",
+      "expectedOutput": "971215059",
+      "sample": false,
+      "label": "exact answer overflows a 32-bit int"
+    },
+    {
+      "input": "47",
+      "expectedOutput": "807526948",
+      "sample": false
+    },
+    {
+      "input": "50",
+      "expectedOutput": "365010934",
+      "sample": false
+    },
+    {
+      "input": "64",
+      "expectedOutput": "680057396",
+      "sample": false
+    },
+    {
+      "input": "77",
+      "expectedOutput": "261180706",
+      "sample": false
+    },
+    {
+      "input": "78",
+      "expectedOutput": "923369890",
+      "sample": false,
+      "label": "exact answer passes 2^53 (JavaScript number precision)"
+    },
+    {
+      "input": "79",
+      "expectedOutput": "184550589",
+      "sample": false
+    },
+    {
+      "input": "90",
+      "expectedOutput": "755204270",
+      "sample": false
+    },
+    {
+      "input": "91",
+      "expectedOutput": "965550172",
+      "sample": false
+    },
+    {
+      "input": "92",
+      "expectedOutput": "720754435",
+      "sample": false,
+      "label": "exact answer overflows a signed 64-bit int"
+    },
+    {
+      "input": "93",
+      "expectedOutput": "686304600",
+      "sample": false,
+      "label": "exact answer overflows an unsigned 64-bit int"
+    },
+    {
+      "input": "94",
+      "expectedOutput": "407059028",
+      "sample": false
+    },
+    {
+      "input": "100",
+      "expectedOutput": "782204094",
+      "sample": false
+    },
+    {
+      "input": "127",
+      "expectedOutput": "700290221",
+      "sample": false
+    },
+    {
+      "input": "128",
+      "expectedOutput": "461493940",
+      "sample": false
+    },
+    {
+      "input": "255",
+      "expectedOutput": "745621702",
+      "sample": false
+    },
+    {
+      "input": "256",
+      "expectedOutput": "361271126",
+      "sample": false
+    },
+    {
+      "input": "500",
+      "expectedOutput": "523068127",
+      "sample": false
+    },
+    {
+      "input": "999",
+      "expectedOutput": "517691607",
+      "sample": false
+    },
+    {
+      "input": "1000",
+      "expectedOutput": "107579939",
+      "sample": false
+    },
+    {
+      "input": "1001",
+      "expectedOutput": "625271546",
+      "sample": false
+    },
+    {
+      "input": "1023",
+      "expectedOutput": "754854590",
+      "sample": false
+    },
+    {
+      "input": "1024",
+      "expectedOutput": "509132326",
+      "sample": false
+    },
+    {
+      "input": "4096",
+      "expectedOutput": "710733020",
+      "sample": false
+    },
+    {
+      "input": "9999",
+      "expectedOutput": "271496360",
+      "sample": false
+    },
+    {
+      "input": "10000",
+      "expectedOutput": "24223428",
+      "sample": false
+    },
+    {
+      "input": "10001",
+      "expectedOutput": "295719788",
+      "sample": false
+    },
+    {
+      "input": "32767",
+      "expectedOutput": "787294282",
+      "sample": false
+    },
+    {
+      "input": "32768",
+      "expectedOutput": "314154357",
+      "sample": false
+    },
+    {
+      "input": "50000",
+      "expectedOutput": "441423758",
+      "sample": false
+    },
+    {
+      "input": "65535",
+      "expectedOutput": "269256820",
+      "sample": false
+    },
+    {
+      "input": "65536",
+      "expectedOutput": "462302286",
+      "sample": false
+    },
+    {
+      "input": "65537",
+      "expectedOutput": "731559106",
+      "sample": false
+    },
+    {
+      "input": "99998",
+      "expectedOutput": "56182730",
+      "sample": false
+    },
+    {
+      "input": "99999",
+      "expectedOutput": "911435502",
+      "sample": false
+    },
+    {
+      "input": "100000",
+      "expectedOutput": "967618232",
+      "sample": false,
+      "label": "largest n"
+    },
+    {
+      "input": "369",
+      "expectedOutput": "212139399",
+      "sample": false
+    },
+    {
+      "input": "99397",
+      "expectedOutput": "296919518",
+      "sample": false
+    },
+    {
+      "input": "10541",
+      "expectedOutput": "377536162",
+      "sample": false
+    },
+    {
+      "input": "33669",
+      "expectedOutput": "81546332",
+      "sample": false
+    },
+    {
+      "input": "80368",
+      "expectedOutput": "923472532",
+      "sample": false
+    },
+    {
+      "input": "50326",
+      "expectedOutput": "777322734",
+      "sample": false
+    },
+    {
+      "input": "425",
+      "expectedOutput": "643902930",
+      "sample": false
+    },
+    {
+      "input": "39826",
+      "expectedOutput": "751727083",
+      "sample": false
+    },
+    {
+      "input": "62378",
+      "expectedOutput": "875704393",
+      "sample": false
+    },
+    {
+      "input": "80434",
+      "expectedOutput": "423880423",
+      "sample": false
+    },
+    {
+      "input": "39021",
+      "expectedOutput": "862599410",
+      "sample": false
+    },
+    {
+      "input": "46045",
+      "expectedOutput": "400662861",
+      "sample": false
+    },
+    {
+      "input": "95154",
+      "expectedOutput": "858038899",
+      "sample": false
+    },
+    {
+      "input": "86532",
+      "expectedOutput": "669056834",
+      "sample": false
+    },
+    {
+      "input": "77956",
+      "expectedOutput": "88678116",
+      "sample": false
+    },
+    {
+      "input": "8981",
+      "expectedOutput": "217643260",
+      "sample": false
+    },
+    {
+      "input": "33346",
+      "expectedOutput": "886289191",
+      "sample": false
+    },
+    {
+      "input": "39781",
+      "expectedOutput": "159986233",
+      "sample": false
+    },
+    {
+      "input": "620",
+      "expectedOutput": "528798254",
+      "sample": false
+    },
+    {
+      "input": "25592",
+      "expectedOutput": "467723667",
+      "sample": false
+    },
+    {
+      "input": "676",
+      "expectedOutput": "316492473",
+      "sample": false
+    },
+    {
+      "input": "23560",
+      "expectedOutput": "505382486",
+      "sample": false
+    },
+    {
+      "input": "639",
+      "expectedOutput": "647754067",
+      "sample": false
+    },
+    {
+      "input": "797",
+      "expectedOutput": "880669430",
+      "sample": false
+    },
+    {
+      "input": "27914",
+      "expectedOutput": "988514171",
+      "sample": false
+    },
+    {
+      "input": "61295",
+      "expectedOutput": "142716379",
+      "sample": false
+    },
+    {
+      "input": "14974",
+      "expectedOutput": "541881605",
+      "sample": false
+    },
+    {
+      "input": "31390",
+      "expectedOutput": "445966278",
+      "sample": false
+    },
+    {
+      "input": "24663",
+      "expectedOutput": "907951664",
+      "sample": false
+    },
+    {
+      "input": "747",
+      "expectedOutput": "676334012",
+      "sample": false
+    },
+    {
+      "input": "90290",
+      "expectedOutput": "382793607",
+      "sample": false
+    },
+    {
+      "input": "55607",
+      "expectedOutput": "107116724",
+      "sample": false
+    },
+    {
+      "input": "68059",
+      "expectedOutput": "606148432",
+      "sample": false
+    },
+    {
+      "input": "249",
+      "expectedOutput": "802913076",
+      "sample": false
+    },
+    {
+      "input": "50849",
+      "expectedOutput": "752022563",
+      "sample": false
+    },
+    {
+      "input": "310",
+      "expectedOutput": "915066310",
+      "sample": false
+    },
+    {
+      "input": "28934",
+      "expectedOutput": "353017380",
+      "sample": false
+    },
+    {
+      "input": "93940",
+      "expectedOutput": "205538010",
+      "sample": false
+    },
+    {
+      "input": "7553",
+      "expectedOutput": "264097877",
+      "sample": false
+    },
+    {
+      "input": "953",
+      "expectedOutput": "989918983",
+      "sample": false
+    },
+    {
+      "input": "728",
+      "expectedOutput": "357762862",
+      "sample": false
+    },
+    {
+      "input": "72413",
+      "expectedOutput": "365522290",
+      "sample": false
+    },
+    {
+      "input": "93446",
+      "expectedOutput": "406221853",
+      "sample": false
+    },
+    {
+      "input": "25638",
+      "expectedOutput": "13043871",
+      "sample": false
+    },
+    {
+      "input": "87043",
+      "expectedOutput": "466940271",
+      "sample": false
+    },
+    {
+      "input": "70332",
+      "expectedOutput": "760686069",
+      "sample": false
+    },
+    {
+      "input": "40829",
+      "expectedOutput": "553781728",
+      "sample": false
+    },
+    {
+      "input": "96335",
+      "expectedOutput": "208025381",
+      "sample": false
+    },
+    {
+      "input": "90931",
+      "expectedOutput": "784259695",
+      "sample": false
+    },
+    {
+      "input": "15012",
+      "expectedOutput": "144944859",
+      "sample": false
+    },
+    {
+      "input": "53146",
+      "expectedOutput": "531940453",
+      "sample": false
+    },
+    {
+      "input": "3482",
+      "expectedOutput": "524700874",
+      "sample": false
+    },
+    {
+      "input": "76",
+      "expectedOutput": "662189184",
+      "sample": false
+    },
+    {
+      "input": "8577",
+      "expectedOutput": "390900241",
+      "sample": false
+    },
+    {
+      "input": "619",
+      "expectedOutput": "591563647",
+      "sample": false
+    },
+    {
+      "input": "96311",
+      "expectedOutput": "687146826",
+      "sample": false
+    },
+    {
+      "input": "80070",
+      "expectedOutput": "874769293",
+      "sample": false
+    },
+    {
+      "input": "84093",
+      "expectedOutput": "251975175",
+      "sample": false
+    },
+    {
+      "input": "63601",
+      "expectedOutput": "587903360",
+      "sample": false
+    },
+    {
+      "input": "67740",
+      "expectedOutput": "300481047",
+      "sample": false
+    },
+    {
+      "input": "75748",
+      "expectedOutput": "996720418",
+      "sample": false
+    },
+    {
+      "input": "22708",
+      "expectedOutput": "321193484",
+      "sample": false
+    },
+    {
+      "input": "51779",
+      "expectedOutput": "258732543",
+      "sample": false
+    },
+    {
+      "input": "7562",
+      "expectedOutput": "533343941",
+      "sample": false
+    },
+    {
+      "input": "70397",
+      "expectedOutput": "622774123",
+      "sample": false
+    },
+    {
+      "input": "35043",
+      "expectedOutput": "84347973",
+      "sample": false
+    },
+    {
+      "input": "47693",
+      "expectedOutput": "829665735",
+      "sample": false
+    },
+    {
+      "input": "95762",
+      "expectedOutput": "932515415",
+      "sample": false
+    },
+    {
+      "input": "98143",
+      "expectedOutput": "803413041",
+      "sample": false
+    },
+    {
+      "input": "34573",
+      "expectedOutput": "392458125",
+      "sample": false
+    },
+    {
+      "input": "5484",
+      "expectedOutput": "79302700",
+      "sample": false
+    },
+    {
+      "input": "71651",
+      "expectedOutput": "144717136",
+      "sample": false
+    },
+    {
+      "input": "45947",
+      "expectedOutput": "480283231",
+      "sample": false
+    },
+    {
+      "input": "970",
+      "expectedOutput": "602391691",
+      "sample": false
+    },
+    {
+      "input": "92565",
+      "expectedOutput": "538138640",
+      "sample": false
+    },
+    {
+      "input": "62917",
+      "expectedOutput": "649547255",
+      "sample": false
+    },
+    {
+      "input": "32343",
+      "expectedOutput": "854834297",
+      "sample": false
+    },
+    {
+      "input": "88943",
+      "expectedOutput": "798508542",
+      "sample": false
+    },
+    {
+      "input": "4523",
+      "expectedOutput": "832343091",
+      "sample": false
+    },
+    {
+      "input": "81568",
+      "expectedOutput": "585963891",
+      "sample": false
+    },
+    {
+      "input": "57091",
+      "expectedOutput": "653633899",
+      "sample": false
+    },
+    {
+      "input": "78805",
+      "expectedOutput": "850008638",
+      "sample": false
+    },
+    {
+      "input": "47476",
+      "expectedOutput": "516142497",
+      "sample": false
+    },
+    {
+      "input": "23648",
+      "expectedOutput": "768241819",
+      "sample": false
+    },
+    {
+      "input": "227",
+      "expectedOutput": "362492344",
+      "sample": false
+    },
+    {
+      "input": "719",
+      "expectedOutput": "627845787",
+      "sample": false
+    },
+    {
+      "input": "78916",
+      "expectedOutput": "740348399",
+      "sample": false
+    },
+    {
+      "input": "71",
+      "expectedOutput": "8390086",
+      "sample": false
+    },
+    {
+      "input": "42310",
+      "expectedOutput": "643661016",
+      "sample": false
+    },
+    {
+      "input": "23528",
+      "expectedOutput": "22238883",
+      "sample": false
+    },
+    {
+      "input": "3533",
+      "expectedOutput": "413505274",
+      "sample": false
+    },
+    {
+      "input": "70291",
+      "expectedOutput": "912524224",
+      "sample": false
+    },
+    {
+      "input": "2570",
+      "expectedOutput": "797220495",
+      "sample": false
+    },
+    {
+      "input": "28326",
+      "expectedOutput": "875931330",
+      "sample": false
+    },
+    {
+      "input": "72387",
+      "expectedOutput": "774418056",
+      "sample": false
+    },
+    {
+      "input": "32573",
+      "expectedOutput": "224899208",
+      "sample": false
+    },
+    {
+      "input": "37587",
+      "expectedOutput": "607557935",
+      "sample": false
+    },
+    {
+      "input": "47336",
+      "expectedOutput": "235463346",
+      "sample": false
+    },
+    {
+      "input": "55572",
+      "expectedOutput": "331230058",
+      "sample": false
+    },
+    {
+      "input": "444",
+      "expectedOutput": "12350282",
+      "sample": false
+    },
+    {
+      "input": "71652",
+      "expectedOutput": "721838679",
+      "sample": false
+    },
+    {
+      "input": "74755",
+      "expectedOutput": "153533343",
+      "sample": false
+    },
+    {
+      "input": "59042",
+      "expectedOutput": "591832361",
+      "sample": false
+    },
+    {
+      "input": "79214",
+      "expectedOutput": "167513232",
+      "sample": false
+    },
+    {
+      "input": "2457",
+      "expectedOutput": "757450947",
+      "sample": false
+    },
+    {
+      "input": "18748",
+      "expectedOutput": "415448920",
+      "sample": false
+    },
+    {
+      "input": "12283",
+      "expectedOutput": "525982298",
+      "sample": false
+    },
+    {
+      "input": "5401",
+      "expectedOutput": "545960694",
+      "sample": false
+    },
+    {
+      "input": "28054",
+      "expectedOutput": "849204531",
+      "sample": false
+    },
+    {
+      "input": "52455",
+      "expectedOutput": "856291946",
+      "sample": false
+    },
+    {
+      "input": "76192",
+      "expectedOutput": "674048620",
+      "sample": false
+    },
+    {
+      "input": "95641",
+      "expectedOutput": "351021616",
+      "sample": false
+    },
+    {
+      "input": "46007",
+      "expectedOutput": "834167531",
+      "sample": false
+    },
+    {
+      "input": "48377",
+      "expectedOutput": "693661408",
+      "sample": false
+    },
+    {
+      "input": "41777",
+      "expectedOutput": "819171177",
+      "sample": false
+    },
+    {
+      "input": "50652",
+      "expectedOutput": "209242307",
+      "sample": false
+    },
+    {
+      "input": "67751",
+      "expectedOutput": "674458547",
+      "sample": false
+    },
+    {
+      "input": "920",
+      "expectedOutput": "421859692",
+      "sample": false
+    },
+    {
+      "input": "63741",
+      "expectedOutput": "420879477",
+      "sample": false
+    },
+    {
+      "input": "389",
+      "expectedOutput": "360403493",
+      "sample": false
+    },
+    {
+      "input": "64827",
+      "expectedOutput": "964100655",
+      "sample": false
+    },
+    {
+      "input": "55884",
+      "expectedOutput": "187303648",
+      "sample": false
+    },
+    {
+      "input": "62136",
+      "expectedOutput": "398044273",
+      "sample": false
+    },
+    {
+      "input": "23815",
+      "expectedOutput": "797863402",
+      "sample": false
+    },
+    {
+      "input": "58900",
+      "expectedOutput": "41617686",
+      "sample": false
+    },
+    {
+      "input": "44514",
+      "expectedOutput": "972090189",
+      "sample": false
+    },
+    {
+      "input": "49892",
+      "expectedOutput": "645337808",
+      "sample": false
+    },
+    {
+      "input": "68974",
+      "expectedOutput": "806474382",
+      "sample": false
+    },
+    {
+      "input": "415",
+      "expectedOutput": "50437266",
+      "sample": false
+    },
+    {
+      "input": "61608",
+      "expectedOutput": "801108083",
+      "sample": false
+    },
+    {
+      "input": "13987",
+      "expectedOutput": "294811283",
+      "sample": false
+    },
+    {
+      "input": "883",
+      "expectedOutput": "254184853",
+      "sample": false
+    },
+    {
+      "input": "67707",
+      "expectedOutput": "693804102",
+      "sample": false
+    },
+    {
+      "input": "97562",
+      "expectedOutput": "452873161",
+      "sample": false
+    },
+    {
+      "input": "65647",
+      "expectedOutput": "801425230",
+      "sample": false
+    },
+    {
+      "input": "91246",
+      "expectedOutput": "607776914",
+      "sample": false
+    },
+    {
+      "input": "50550",
+      "expectedOutput": "475472749",
+      "sample": false
+    },
+    {
+      "input": "84106",
+      "expectedOutput": "494055302",
+      "sample": false
+    },
+    {
+      "input": "242",
+      "expectedOutput": "76792083",
+      "sample": false
+    },
+    {
+      "input": "3491",
+      "expectedOutput": "173375059",
+      "sample": false
+    },
+    {
+      "input": "94238",
+      "expectedOutput": "967728833",
+      "sample": false
+    },
+    {
+      "input": "40343",
+      "expectedOutput": "225953375",
+      "sample": false
+    },
+    {
+      "input": "73083",
+      "expectedOutput": "468980855",
+      "sample": false
+    },
+    {
+      "input": "51541",
+      "expectedOutput": "990064494",
+      "sample": false
+    },
+    {
+      "input": "34437",
+      "expectedOutput": "90144119",
+      "sample": false
+    },
+    {
+      "input": "82171",
+      "expectedOutput": "850251677",
+      "sample": false
+    },
+    {
+      "input": "9710",
+      "expectedOutput": "273987363",
+      "sample": false
+    },
+    {
+      "input": "70060",
+      "expectedOutput": "840915503",
+      "sample": false
+    },
+    {
+      "input": "31532",
+      "expectedOutput": "498612081",
+      "sample": false
+    },
+    {
+      "input": "34977",
+      "expectedOutput": "326095956",
+      "sample": false
+    },
+    {
+      "input": "3588",
+      "expectedOutput": "871340790",
+      "sample": false
+    },
+    {
+      "input": "17399",
+      "expectedOutput": "61322724",
+      "sample": false
+    },
+    {
+      "input": "487",
+      "expectedOutput": "981148489",
+      "sample": false
+    },
+    {
+      "input": "275",
+      "expectedOutput": "443464525",
+      "sample": false
+    },
+    {
+      "input": "9253",
+      "expectedOutput": "186306090",
+      "sample": false
+    },
+    {
+      "input": "72966",
+      "expectedOutput": "538249122",
+      "sample": false
+    },
+    {
+      "input": "74403",
+      "expectedOutput": "190241595",
+      "sample": false
+    },
+    {
+      "input": "67405",
+      "expectedOutput": "41172956",
+      "sample": false
+    },
+    {
+      "input": "405",
+      "expectedOutput": "559880753",
+      "sample": false
+    },
+    {
+      "input": "612",
+      "expectedOutput": "451540757",
+      "sample": false
+    },
+    {
+      "input": "13021",
+      "expectedOutput": "300730985",
+      "sample": false
+    },
+    {
+      "input": "189",
+      "expectedOutput": "981152293",
+      "sample": false
+    },
+    {
+      "input": "19856",
+      "expectedOutput": "567319900",
+      "sample": false
+    },
+    {
+      "input": "25136",
+      "expectedOutput": "314211027",
+      "sample": false
+    },
+    {
+      "input": "19081",
+      "expectedOutput": "620382156",
+      "sample": false
+    },
+    {
+      "input": "92598",
+      "expectedOutput": "367882472",
+      "sample": false
+    },
+    {
+      "input": "64192",
+      "expectedOutput": "269070685",
+      "sample": false
+    },
+    {
+      "input": "822",
+      "expectedOutput": "914156686",
+      "sample": false
+    },
+    {
+      "input": "16047",
+      "expectedOutput": "727410792",
+      "sample": false
+    },
+    {
+      "input": "810",
+      "expectedOutput": "244747514",
+      "sample": false
+    },
+    {
+      "input": "59896",
+      "expectedOutput": "895017983",
+      "sample": false
+    },
+    {
+      "input": "66961",
+      "expectedOutput": "835562147",
+      "sample": false
+    },
+    {
+      "input": "39472",
+      "expectedOutput": "878200212",
+      "sample": false
+    },
+    {
+      "input": "163",
+      "expectedOutput": "380721455",
+      "sample": false
+    },
+    {
+      "input": "57381",
+      "expectedOutput": "909573354",
+      "sample": false
+    },
+    {
+      "input": "58916",
+      "expectedOutput": "693036083",
+      "sample": false
+    },
+    {
+      "input": "21963",
+      "expectedOutput": "514250188",
+      "sample": false
+    },
+    {
+      "input": "70545",
+      "expectedOutput": "772722089",
+      "sample": false
+    },
+    {
+      "input": "77577",
+      "expectedOutput": "780438698",
+      "sample": false
+    },
+    {
+      "input": "35514",
+      "expectedOutput": "617848622",
+      "sample": false
+    },
+    {
+      "input": "84278",
+      "expectedOutput": "962042775",
+      "sample": false
+    },
+    {
+      "input": "18114",
+      "expectedOutput": "568793363",
+      "sample": false
+    },
+    {
+      "input": "15365",
+      "expectedOutput": "229754951",
+      "sample": false
+    },
+    {
+      "input": "66389",
+      "expectedOutput": "510998256",
+      "sample": false
+    },
+    {
+      "input": "77988",
+      "expectedOutput": "588007207",
+      "sample": false
+    },
+    {
+      "input": "38393",
+      "expectedOutput": "760530529",
+      "sample": false
+    },
+    {
+      "input": "509",
+      "expectedOutput": "491066874",
+      "sample": false
+    },
+    {
+      "input": "79277",
+      "expectedOutput": "313030211",
+      "sample": false
+    },
+    {
+      "input": "99714",
+      "expectedOutput": "737109285",
+      "sample": false
+    },
+    {
+      "input": "92496",
+      "expectedOutput": "589468525",
+      "sample": false
+    },
+    {
+      "input": "30366",
+      "expectedOutput": "341333666",
+      "sample": false
+    },
+    {
+      "input": "66890",
+      "expectedOutput": "516462285",
+      "sample": false
+    },
+    {
+      "input": "16922",
+      "expectedOutput": "928152120",
+      "sample": false
+    },
+    {
+      "input": "25828",
+      "expectedOutput": "883160935",
+      "sample": false
+    },
+    {
+      "input": "99752",
+      "expectedOutput": "259142933",
+      "sample": false
+    },
+    {
+      "input": "42265",
+      "expectedOutput": "704273590",
+      "sample": false
+    },
+    {
+      "input": "17387",
+      "expectedOutput": "214126405",
+      "sample": false
+    },
+    {
+      "input": "90238",
+      "expectedOutput": "84749208",
+      "sample": false
+    },
+    {
+      "input": "2948",
+      "expectedOutput": "168712590",
+      "sample": false
+    },
+    {
+      "input": "85982",
+      "expectedOutput": "288162468",
+      "sample": false
+    },
+    {
+      "input": "64503",
+      "expectedOutput": "482380644",
+      "sample": false
+    },
+    {
+      "input": "78141",
+      "expectedOutput": "610955020",
+      "sample": false
+    },
+    {
+      "input": "91779",
+      "expectedOutput": "748748060",
+      "sample": false
+    },
+    {
+      "input": "423",
+      "expectedOutput": "646770890",
+      "sample": false
+    },
+    {
+      "input": "89359",
+      "expectedOutput": "675999701",
+      "sample": false
+    },
+    {
+      "input": "27813",
+      "expectedOutput": "977028034",
+      "sample": false
+    },
+    {
+      "input": "5206",
+      "expectedOutput": "832627058",
+      "sample": false
+    },
+    {
+      "input": "71535",
+      "expectedOutput": "341151078",
+      "sample": false
+    },
+    {
+      "input": "463",
+      "expectedOutput": "106688536",
+      "sample": false
+    },
+    {
+      "input": "343",
+      "expectedOutput": "939584806",
+      "sample": false
+    },
+    {
+      "input": "80515",
+      "expectedOutput": "389670985",
+      "sample": false
+    },
+    {
+      "input": "11887",
+      "expectedOutput": "656842765",
+      "sample": false
+    },
+    {
+      "input": "12561",
+      "expectedOutput": "63119122",
+      "sample": false
+    },
+    {
+      "input": "66532",
+      "expectedOutput": "831514447",
+      "sample": false
+    },
+    {
+      "input": "72155",
+      "expectedOutput": "47577154",
+      "sample": false
+    },
+    {
+      "input": "26641",
+      "expectedOutput": "271541344",
+      "sample": false
+    },
+    {
+      "input": "4386",
+      "expectedOutput": "152693614",
+      "sample": false
+    },
+    {
+      "input": "60456",
+      "expectedOutput": "580862718",
+      "sample": false
+    },
+    {
+      "input": "31898",
+      "expectedOutput": "39410072",
+      "sample": false
+    },
+    {
+      "input": "884",
+      "expectedOutput": "529223655",
+      "sample": false
+    },
+    {
+      "input": "88406",
+      "expectedOutput": "727257490",
+      "sample": false
+    },
+    {
+      "input": "22182",
+      "expectedOutput": "749417318",
+      "sample": false
+    },
+    {
+      "input": "791",
+      "expectedOutput": "292364298",
+      "sample": false
+    },
+    {
+      "input": "34906",
+      "expectedOutput": "634130895",
+      "sample": false
+    },
+    {
+      "input": "67003",
+      "expectedOutput": "980172621",
+      "sample": false
+    },
+    {
+      "input": "47733",
+      "expectedOutput": "897368645",
+      "sample": false
+    },
+    {
+      "input": "52187",
+      "expectedOutput": "685969012",
+      "sample": false
+    },
+    {
+      "input": "48782",
+      "expectedOutput": "831289657",
+      "sample": false
+    },
+    {
+      "input": "56781",
+      "expectedOutput": "809296061",
+      "sample": false
+    },
+    {
+      "input": "89224",
+      "expectedOutput": "889152595",
+      "sample": false
+    },
+    {
+      "input": "97001",
+      "expectedOutput": "356750442",
+      "sample": false
+    },
+    {
+      "input": "15962",
+      "expectedOutput": "227415318",
+      "sample": false
+    },
+    {
+      "input": "94893",
+      "expectedOutput": "853578050",
+      "sample": false
+    },
+    {
+      "input": "33766",
+      "expectedOutput": "658325187",
+      "sample": false
+    },
+    {
+      "input": "46765",
+      "expectedOutput": "676733982",
+      "sample": false
+    },
+    {
+      "input": "61124",
+      "expectedOutput": "621720459",
+      "sample": false
+    },
+    {
+      "input": "37415",
+      "expectedOutput": "339158569",
+      "sample": false
+    },
+    {
+      "input": "85242",
+      "expectedOutput": "517646669",
+      "sample": false
+    },
+    {
+      "input": "77765",
+      "expectedOutput": "856823040",
+      "sample": false
+    },
+    {
+      "input": "58976",
+      "expectedOutput": "689913960",
+      "sample": false
+    },
+    {
+      "input": "67416",
+      "expectedOutput": "176705151",
+      "sample": false
+    },
+    {
+      "input": "31020",
+      "expectedOutput": "65777417",
+      "sample": false
+    },
+    {
+      "input": "18517",
+      "expectedOutput": "639002929",
+      "sample": false
+    },
+    {
+      "input": "918",
+      "expectedOutput": "203124326",
+      "sample": false
+    },
+    {
+      "input": "67510",
+      "expectedOutput": "795427931",
+      "sample": false
+    },
+    {
+      "input": "816",
+      "expectedOutput": "731050238",
+      "sample": false
+    },
+    {
+      "input": "35793",
+      "expectedOutput": "579187727",
+      "sample": false
+    },
+    {
+      "input": "628",
+      "expectedOutput": "401977013",
+      "sample": false
+    },
+    {
+      "input": "55958",
+      "expectedOutput": "45245009",
+      "sample": false
+    },
+    {
+      "input": "94515",
+      "expectedOutput": "646449008",
+      "sample": false
+    },
+    {
+      "input": "25416",
+      "expectedOutput": "502940736",
+      "sample": false
+    },
+    {
+      "input": "40454",
+      "expectedOutput": "709175092",
+      "sample": false
+    },
+    {
+      "input": "67757",
+      "expectedOutput": "320383602",
+      "sample": false
+    },
+    {
+      "input": "192",
+      "expectedOutput": "544431705",
+      "sample": false
+    },
+    {
+      "input": "69042",
+      "expectedOutput": "225671315",
+      "sample": false
+    },
+    {
+      "input": "50810",
+      "expectedOutput": "850057984",
+      "sample": false
+    },
+    {
+      "input": "603",
+      "expectedOutput": "803264607",
+      "sample": false
+    },
+    {
+      "input": "72231",
+      "expectedOutput": "981819604",
+      "sample": false
+    },
+    {
+      "input": "19461",
+      "expectedOutput": "185260385",
+      "sample": false
+    },
+    {
+      "input": "71570",
+      "expectedOutput": "385706020",
+      "sample": false
+    },
+    {
+      "input": "205",
+      "expectedOutput": "981285878",
+      "sample": false
+    },
+    {
+      "input": "63733",
+      "expectedOutput": "721321267",
+      "sample": false
+    },
+    {
+      "input": "85964",
+      "expectedOutput": "465539893",
+      "sample": false
+    },
+    {
+      "input": "16835",
+      "expectedOutput": "421706205",
+      "sample": false
+    },
+    {
+      "input": "47801",
+      "expectedOutput": "432951480",
+      "sample": false
+    },
+    {
+      "input": "89930",
+      "expectedOutput": "799970851",
+      "sample": false
+    },
+    {
+      "input": "13794",
+      "expectedOutput": "299835519",
+      "sample": false
+    },
+    {
+      "input": "48148",
+      "expectedOutput": "671818279",
+      "sample": false
+    },
+    {
+      "input": "92367",
+      "expectedOutput": "700175391",
+      "sample": false
+    },
+    {
+      "input": "77044",
+      "expectedOutput": "460906486",
+      "sample": false
+    },
+    {
+      "input": "339",
+      "expectedOutput": "957546983",
+      "sample": false
+    },
+    {
+      "input": "79002",
+      "expectedOutput": "332710814",
+      "sample": false
+    },
+    {
+      "input": "297",
+      "expectedOutput": "395488370",
+      "sample": false
+    },
+    {
+      "input": "83865",
+      "expectedOutput": "620574725",
+      "sample": false
+    },
+    {
+      "input": "13211",
+      "expectedOutput": "533203871",
+      "sample": false
+    },
+    {
+      "input": "95437",
+      "expectedOutput": "739395428",
+      "sample": false
+    },
+    {
+      "input": "72240",
+      "expectedOutput": "63454103",
+      "sample": false
+    },
+    {
+      "input": "30964",
+      "expectedOutput": "49464313",
+      "sample": false
+    },
+    {
+      "input": "469",
+      "expectedOutput": "138102407",
+      "sample": false
+    },
+    {
+      "input": "10743",
+      "expectedOutput": "985311258",
+      "sample": false
+    },
+    {
+      "input": "564",
+      "expectedOutput": "241447639",
+      "sample": false
+    },
+    {
+      "input": "38871",
+      "expectedOutput": "338029906",
+      "sample": false
+    },
+    {
+      "input": "543",
+      "expectedOutput": "470134071",
+      "sample": false
+    },
+    {
+      "input": "90440",
+      "expectedOutput": "140592572",
+      "sample": false
+    },
+    {
+      "input": "447",
+      "expectedOutput": "531696643",
+      "sample": false
+    },
+    {
+      "input": "86000",
+      "expectedOutput": "537188563",
+      "sample": false
+    },
+    {
+      "input": "1381",
+      "expectedOutput": "727324150",
+      "sample": false
+    },
+    {
+      "input": "12449",
+      "expectedOutput": "47412110",
+      "sample": false
+    },
+    {
+      "input": "709",
+      "expectedOutput": "951360589",
+      "sample": false
+    },
+    {
+      "input": "27213",
+      "expectedOutput": "110208069",
+      "sample": false
+    },
+    {
+      "input": "36773",
+      "expectedOutput": "495618174",
+      "sample": false
+    },
+    {
+      "input": "741",
+      "expectedOutput": "283119763",
+      "sample": false
+    },
+    {
+      "input": "16251",
+      "expectedOutput": "549977012",
+      "sample": false
+    },
+    {
+      "input": "94786",
+      "expectedOutput": "313996466",
+      "sample": false
+    },
+    {
+      "input": "81805",
+      "expectedOutput": "65033678",
+      "sample": false
+    },
+    {
+      "input": "84626",
+      "expectedOutput": "458697855",
+      "sample": false
+    },
+    {
+      "input": "63422",
+      "expectedOutput": "967839288",
+      "sample": false
+    },
+    {
+      "input": "420",
+      "expectedOutput": "53951424",
+      "sample": false
+    },
+    {
+      "input": "45293",
+      "expectedOutput": "359196746",
+      "sample": false
+    },
+    {
+      "input": "376",
+      "expectedOutput": "877938922",
+      "sample": false
+    },
+    {
+      "input": "63136",
+      "expectedOutput": "157518801",
+      "sample": false
+    },
+    {
+      "input": "67835",
+      "expectedOutput": "470350707",
+      "sample": false
+    },
+    {
+      "input": "566",
+      "expectedOutput": "415643624",
+      "sample": false
+    },
+    {
+      "input": "340",
+      "expectedOutput": "674830287",
+      "sample": false
+    },
+    {
+      "input": "64006",
+      "expectedOutput": "573370177",
+      "sample": false
+    },
+    {
+      "input": "10118",
+      "expectedOutput": "450657428",
+      "sample": false
+    },
+    {
+      "input": "77825",
+      "expectedOutput": "670905059",
+      "sample": false
+    },
+    {
+      "input": "62279",
+      "expectedOutput": "280293724",
+      "sample": false
+    },
+    {
+      "input": "28342",
+      "expectedOutput": "167921000",
+      "sample": false
+    },
+    {
+      "input": "83839",
+      "expectedOutput": "475375146",
+      "sample": false
+    },
+    {
+      "input": "97589",
+      "expectedOutput": "349005992",
+      "sample": false
+    },
+    {
+      "input": "71935",
+      "expectedOutput": "464374653",
+      "sample": false
+    },
+    {
+      "input": "41802",
+      "expectedOutput": "418799669",
+      "sample": false
+    },
+    {
+      "input": "68662",
+      "expectedOutput": "522936483",
+      "sample": false
+    },
+    {
+      "input": "18190",
+      "expectedOutput": "284428959",
+      "sample": false
+    },
+    {
+      "input": "74413",
+      "expectedOutput": "875095410",
+      "sample": false
+    },
+    {
+      "input": "121",
+      "expectedOutput": "411821318",
+      "sample": false
+    },
+    {
+      "input": "4377",
+      "expectedOutput": "471521166",
+      "sample": false
+    },
+    {
+      "input": "490",
+      "expectedOutput": "498210174",
+      "sample": false
+    },
+    {
+      "input": "2692",
+      "expectedOutput": "318102753",
+      "sample": false
+    },
+    {
+      "input": "6872",
+      "expectedOutput": "843184152",
+      "sample": false
+    },
+    {
+      "input": "10586",
+      "expectedOutput": "988482039",
+      "sample": false
+    },
+    {
+      "input": "75410",
+      "expectedOutput": "98415532",
+      "sample": false
+    },
+    {
+      "input": "914",
+      "expectedOutput": "359415532",
+      "sample": false
+    },
+    {
+      "input": "35942",
+      "expectedOutput": "219350806",
+      "sample": false
+    },
+    {
+      "input": "26137",
+      "expectedOutput": "663294245",
+      "sample": false
+    },
+    {
+      "input": "92781",
+      "expectedOutput": "827735743",
+      "sample": false
+    },
+    {
+      "input": "22721",
+      "expectedOutput": "407121318",
+      "sample": false
+    },
+    {
+      "input": "93514",
+      "expectedOutput": "780095174",
+      "sample": false
+    },
+    {
+      "input": "57872",
+      "expectedOutput": "388972729",
+      "sample": false
+    },
+    {
+      "input": "178",
+      "expectedOutput": "280004769",
+      "sample": false
+    },
+    {
+      "input": "93290",
+      "expectedOutput": "160903940",
+      "sample": false
+    },
+    {
+      "input": "37701",
+      "expectedOutput": "256505431",
+      "sample": false
+    },
+    {
+      "input": "13920",
+      "expectedOutput": "730939790",
+      "sample": false
+    },
+    {
+      "input": "80421",
+      "expectedOutput": "738989524",
+      "sample": false
+    },
+    {
+      "input": "6942",
+      "expectedOutput": "128603221",
+      "sample": false
+    },
+    {
+      "input": "698",
+      "expectedOutput": "96097098",
+      "sample": false
+    },
+    {
+      "input": "75055",
+      "expectedOutput": "908431483",
+      "sample": false
+    },
+    {
+      "input": "33050",
+      "expectedOutput": "246543028",
+      "sample": false
+    },
+    {
+      "input": "27701",
+      "expectedOutput": "311273989",
+      "sample": false
+    },
+    {
+      "input": "77815",
+      "expectedOutput": "107085287",
+      "sample": false
+    },
+    {
+      "input": "827",
+      "expectedOutput": "713086670",
+      "sample": false
+    },
+    {
+      "input": "616",
+      "expectedOutput": "282905574",
+      "sample": false
+    },
+    {
+      "input": "93194",
+      "expectedOutput": "997478586",
+      "sample": false
+    },
+    {
+      "input": "665",
+      "expectedOutput": "846036534",
+      "sample": false
+    },
+    {
+      "input": "43181",
+      "expectedOutput": "486966185",
+      "sample": false
+    },
+    {
+      "input": "854",
+      "expectedOutput": "185372325",
+      "sample": false
+    },
+    {
+      "input": "81557",
+      "expectedOutput": "169669756",
+      "sample": false
+    },
+    {
+      "input": "1020",
+      "expectedOutput": "753700896",
+      "sample": false
+    },
+    {
+      "input": "92607",
+      "expectedOutput": "564558684",
+      "sample": false
+    },
+    {
+      "input": "11513",
+      "expectedOutput": "738175260",
+      "sample": false
+    },
+    {
+      "input": "51050",
+      "expectedOutput": "705124101",
+      "sample": false
+    },
+    {
+      "input": "273",
+      "expectedOutput": "282432810",
+      "sample": false
+    },
+    {
+      "input": "92914",
+      "expectedOutput": "619012750",
+      "sample": false
+    },
+    {
+      "input": "49970",
+      "expectedOutput": "849181096",
+      "sample": false
+    },
+    {
+      "input": "771",
+      "expectedOutput": "156290805",
+      "sample": false
+    },
+    {
+      "input": "983",
+      "expectedOutput": "572091546",
+      "sample": false
+    },
+    {
+      "input": "36550",
+      "expectedOutput": "286738211",
+      "sample": false
+    },
+    {
+      "input": "53078",
+      "expectedOutput": "482257143",
+      "sample": false
+    },
+    {
+      "input": "16872",
+      "expectedOutput": "463293137",
+      "sample": false
+    },
+    {
+      "input": "52291",
+      "expectedOutput": "804517664",
+      "sample": false
+    },
+    {
+      "input": "351",
+      "expectedOutput": "397241541",
+      "sample": false
+    },
+    {
+      "input": "38839",
+      "expectedOutput": "620343157",
+      "sample": false
+    },
+    {
+      "input": "75812",
+      "expectedOutput": "393450910",
+      "sample": false
+    },
+    {
+      "input": "61903",
+      "expectedOutput": "14747397",
+      "sample": false
+    },
+    {
+      "input": "74940",
+      "expectedOutput": "26462373",
+      "sample": false
+    },
+    {
+      "input": "86480",
+      "expectedOutput": "161002110",
+      "sample": false
+    },
+    {
+      "input": "24038",
+      "expectedOutput": "5687866",
+      "sample": false
+    },
+    {
+      "input": "311",
+      "expectedOutput": "937233847",
+      "sample": false
+    },
+    {
+      "input": "20114",
+      "expectedOutput": "101217022",
+      "sample": false
+    },
+    {
+      "input": "87422",
+      "expectedOutput": "899048883",
+      "sample": false
+    },
+    {
+      "input": "204",
+      "expectedOutput": "694633469",
+      "sample": false
+    },
+    {
+      "input": "15804",
+      "expectedOutput": "882720319",
+      "sample": false
+    },
+    {
+      "input": "626",
+      "expectedOutput": "606886401",
+      "sample": false
+    },
+    {
+      "input": "99519",
+      "expectedOutput": "613495105",
+      "sample": false
+    },
+    {
+      "input": "96622",
+      "expectedOutput": "65805982",
+      "sample": false
+    },
+    {
+      "input": "28479",
+      "expectedOutput": "296559669",
+      "sample": false
+    },
+    {
+      "input": "23421",
+      "expectedOutput": "60807009",
+      "sample": false
+    },
+    {
+      "input": "55119",
+      "expectedOutput": "941697038",
+      "sample": false
+    },
+    {
+      "input": "43357",
+      "expectedOutput": "36680811",
+      "sample": false
+    },
+    {
+      "input": "34601",
+      "expectedOutput": "545860156",
+      "sample": false
+    },
+    {
+      "input": "19072",
+      "expectedOutput": "808079359",
+      "sample": false
+    },
+    {
+      "input": "18839",
+      "expectedOutput": "925895853",
+      "sample": false
+    },
+    {
+      "input": "77399",
+      "expectedOutput": "179852089",
+      "sample": false
+    },
+    {
+      "input": "305",
+      "expectedOutput": "365638776",
+      "sample": false
+    },
+    {
+      "input": "72426",
+      "expectedOutput": "883543825",
+      "sample": false
+    },
+    {
+      "input": "221",
+      "expectedOutput": "716765305",
+      "sample": false
+    },
+    {
+      "input": "89111",
+      "expectedOutput": "273195127",
+      "sample": false
+    },
+    {
+      "input": "28583",
+      "expectedOutput": "336324965",
+      "sample": false
+    },
+    {
+      "input": "69",
+      "expectedOutput": "489376391",
+      "sample": false
+    },
+    {
+      "input": "76895",
+      "expectedOutput": "165441839",
+      "sample": false
+    },
+    {
+      "input": "89377",
+      "expectedOutput": "280982726",
+      "sample": false
+    },
+    {
+      "input": "57937",
+      "expectedOutput": "72080853",
+      "sample": false
+    },
+    {
+      "input": "99181",
+      "expectedOutput": "412701117",
+      "sample": false
+    },
+    {
+      "input": "679",
+      "expectedOutput": "427075672",
+      "sample": false
+    },
+    {
+      "input": "20347",
+      "expectedOutput": "118643739",
+      "sample": false
+    },
+    {
+      "input": "304",
+      "expectedOutput": "397991226",
+      "sample": false
+    },
+    {
+      "input": "62855",
+      "expectedOutput": "239967682",
+      "sample": false
+    },
+    {
+      "input": "9083",
+      "expectedOutput": "894145603",
+      "sample": false
+    },
+    {
+      "input": "312",
+      "expectedOutput": "852300150",
+      "sample": false
+    },
+    {
+      "input": "3399",
+      "expectedOutput": "17005144",
+      "sample": false
+    },
+    {
+      "input": "64291",
+      "expectedOutput": "812087859",
+      "sample": false
+    },
+    {
+      "input": "260",
+      "expectedOutput": "43220708",
+      "sample": false
+    },
+    {
+      "input": "64626",
+      "expectedOutput": "805560572",
+      "sample": false
+    },
+    {
+      "input": "17144",
+      "expectedOutput": "431949256",
+      "sample": false
+    },
+    {
+      "input": "26726",
+      "expectedOutput": "425466692",
+      "sample": false
+    },
+    {
+      "input": "5855",
+      "expectedOutput": "829541214",
+      "sample": false
+    },
+    {
+      "input": "34720",
+      "expectedOutput": "560203546",
+      "sample": false
+    },
+    {
+      "input": "80666",
+      "expectedOutput": "754276667",
+      "sample": false
+    },
+    {
+      "input": "3040",
+      "expectedOutput": "37039039",
+      "sample": false
+    },
+    {
+      "input": "7324",
+      "expectedOutput": "956411902",
+      "sample": false
+    },
+    {
+      "input": "63554",
+      "expectedOutput": "96343884",
+      "sample": false
+    },
+    {
+      "input": "541",
+      "expectedOutput": "490260421",
+      "sample": false
+    },
+    {
+      "input": "1934",
+      "expectedOutput": "80479794",
+      "sample": false
+    },
+    {
+      "input": "948",
+      "expectedOutput": "990956158",
+      "sample": false
+    },
+    {
+      "input": "56896",
+      "expectedOutput": "305179376",
+      "sample": false
+    },
+    {
+      "input": "57158",
+      "expectedOutput": "174177209",
+      "sample": false
+    },
+    {
+      "input": "84723",
+      "expectedOutput": "486353612",
+      "sample": false
+    },
+    {
+      "input": "65062",
+      "expectedOutput": "68623351",
+      "sample": false
+    },
+    {
+      "input": "114",
+      "expectedOutput": "518675802",
+      "sample": false
+    },
+    {
+      "input": "8001",
+      "expectedOutput": "247550969",
+      "sample": false
+    },
+    {
+      "input": "9939",
+      "expectedOutput": "277019606",
+      "sample": false
+    },
+    {
+      "input": "13702",
+      "expectedOutput": "580528584",
+      "sample": false
+    },
+    {
+      "input": "3572",
+      "expectedOutput": "132320232",
+      "sample": false
+    },
+    {
+      "input": "83350",
+      "expectedOutput": "832922017",
+      "sample": false
+    },
+    {
+      "input": "30013",
+      "expectedOutput": "956452712",
+      "sample": false
+    },
+    {
+      "input": "77663",
+      "expectedOutput": "708190034",
+      "sample": false
+    },
+    {
+      "input": "48741",
+      "expectedOutput": "492330591",
+      "sample": false
+    },
+    {
+      "input": "7030",
+      "expectedOutput": "546763546",
+      "sample": false
+    },
+    {
+      "input": "82210",
+      "expectedOutput": "734870360",
+      "sample": false
+    },
+    {
+      "input": "4111",
+      "expectedOutput": "449777621",
+      "sample": false
+    },
+    {
+      "input": "67912",
+      "expectedOutput": "353257867",
+      "sample": false
+    },
+    {
+      "input": "674",
+      "expectedOutput": "77693343",
+      "sample": false
+    },
+    {
+      "input": "21588",
+      "expectedOutput": "680900219",
+      "sample": false
+    },
+    {
+      "input": "12040",
+      "expectedOutput": "36968254",
+      "sample": false
+    },
+    {
+      "input": "80085",
+      "expectedOutput": "64852706",
+      "sample": false
+    },
+    {
+      "input": "574",
+      "expectedOutput": "789998782",
+      "sample": false
+    },
+    {
+      "input": "79150",
+      "expectedOutput": "865485163",
+      "sample": false
+    },
+    {
+      "input": "71347",
+      "expectedOutput": "583616493",
+      "sample": false
+    },
+    {
+      "input": "24899",
+      "expectedOutput": "236909058",
+      "sample": false
+    },
+    {
+      "input": "18921",
+      "expectedOutput": "768265773",
+      "sample": false
+    },
+    {
+      "input": "43046",
+      "expectedOutput": "785283513",
+      "sample": false
+    },
+    {
+      "input": "459",
+      "expectedOutput": "56695278",
+      "sample": false
+    },
+    {
+      "input": "276",
+      "expectedOutput": "604496240",
+      "sample": false
+    },
+    {
+      "input": "34761",
+      "expectedOutput": "731443028",
+      "sample": false
+    },
+    {
+      "input": "88473",
+      "expectedOutput": "481745365",
+      "sample": false
+    },
+    {
+      "input": "692",
+      "expectedOutput": "133215504",
+      "sample": false
+    },
+    {
+      "input": "97775",
+      "expectedOutput": "427331120",
+      "sample": false
+    },
+    {
+      "input": "61637",
+      "expectedOutput": "786721341",
+      "sample": false
+    },
+    {
+      "input": "29206",
+      "expectedOutput": "784461728",
+      "sample": false
+    },
+    {
+      "input": "386",
+      "expectedOutput": "672008888",
+      "sample": false
+    },
+    {
+      "input": "78014",
+      "expectedOutput": "486025928",
+      "sample": false
+    },
+    {
+      "input": "98831",
+      "expectedOutput": "520007108",
+      "sample": false
+    },
+    {
+      "input": "537",
+      "expectedOutput": "511681141",
+      "sample": false
+    },
+    {
+      "input": "984",
+      "expectedOutput": "662149803",
+      "sample": false
+    },
+    {
+      "input": "506",
+      "expectedOutput": "205137390",
+      "sample": false
+    },
+    {
+      "input": "55794",
+      "expectedOutput": "504894165",
+      "sample": false
+    },
+    {
+      "input": "12227",
+      "expectedOutput": "598375233",
+      "sample": false
+    },
+    {
+      "input": "86774",
+      "expectedOutput": "354566156",
+      "sample": false
+    },
+    {
+      "input": "92671",
+      "expectedOutput": "209992605",
+      "sample": false
+    },
+    {
+      "input": "44763",
+      "expectedOutput": "123227020",
+      "sample": false
+    },
+    {
+      "input": "87307",
+      "expectedOutput": "118215090",
+      "sample": false
+    },
+    {
+      "input": "69704",
+      "expectedOutput": "635885745",
+      "sample": false
+    },
+    {
+      "input": "5419",
+      "expectedOutput": "728891925",
+      "sample": false
+    },
+    {
+      "input": "92240",
+      "expectedOutput": "61850146",
+      "sample": false
+    },
+    {
+      "input": "438",
+      "expectedOutput": "83168236",
+      "sample": false
+    },
+    {
+      "input": "349",
+      "expectedOutput": "672262724",
+      "sample": false
+    },
+    {
+      "input": "97049",
+      "expectedOutput": "395082294",
+      "sample": false
+    },
+    {
+      "input": "87184",
+      "expectedOutput": "710439903",
+      "sample": false
+    },
+    {
+      "input": "18866",
+      "expectedOutput": "654251084",
+      "sample": false
+    },
+    {
+      "input": "21871",
+      "expectedOutput": "677798728",
+      "sample": false
+    },
+    {
+      "input": "66489",
+      "expectedOutput": "323801837",
+      "sample": false
+    },
+    {
+      "input": "430",
+      "expectedOutput": "136883605",
+      "sample": false
+    },
+    {
+      "input": "95687",
+      "expectedOutput": "874283032",
+      "sample": false
+    },
+    {
+      "input": "85795",
+      "expectedOutput": "271728550",
+      "sample": false
+    },
+    {
+      "input": "85294",
+      "expectedOutput": "867352237",
+      "sample": false
+    },
+    {
+      "input": "18697",
+      "expectedOutput": "468832411",
+      "sample": false
+    },
+    {
+      "input": "69610",
+      "expectedOutput": "475614887",
+      "sample": false
+    },
+    {
+      "input": "40576",
+      "expectedOutput": "65889130",
+      "sample": false
+    },
+    {
+      "input": "98275",
+      "expectedOutput": "52326742",
+      "sample": false
+    },
+    {
+      "input": "73855",
+      "expectedOutput": "319552793",
+      "sample": false
+    },
+    {
+      "input": "32045",
+      "expectedOutput": "659915422",
+      "sample": false
+    },
+    {
+      "input": "53797",
+      "expectedOutput": "53520968",
+      "sample": false
+    },
+    {
+      "input": "66325",
+      "expectedOutput": "765419453",
+      "sample": false
+    },
+    {
+      "input": "79094",
+      "expectedOutput": "872193202",
+      "sample": false
+    },
+    {
+      "input": "37254",
+      "expectedOutput": "247833770",
+      "sample": false
+    },
+    {
+      "input": "50485",
+      "expectedOutput": "95126930",
+      "sample": false
+    },
+    {
+      "input": "35755",
+      "expectedOutput": "890563044",
+      "sample": false
+    },
+    {
+      "input": "7837",
+      "expectedOutput": "234623915",
+      "sample": false
+    },
+    {
+      "input": "809",
+      "expectedOutput": "193666573",
+      "sample": false
+    },
+    {
+      "input": "258",
+      "expectedOutput": "468163947",
+      "sample": false
+    },
+    {
+      "input": "99652",
+      "expectedOutput": "57707494",
+      "sample": false
+    },
+    {
+      "input": "19895",
+      "expectedOutput": "544040547",
+      "sample": false
+    },
+    {
+      "input": "88777",
+      "expectedOutput": "911690760",
+      "sample": false
+    },
+    {
+      "input": "561",
+      "expectedOutput": "624049060",
+      "sample": false
+    },
+    {
+      "input": "71929",
+      "expectedOutput": "919421071",
+      "sample": false
+    },
+    {
+      "input": "33226",
+      "expectedOutput": "672333729",
+      "sample": false
+    },
+    {
+      "input": "140",
+      "expectedOutput": "369878388",
+      "sample": false
+    },
+    {
+      "input": "97519",
+      "expectedOutput": "462841459",
+      "sample": false
+    },
+    {
+      "input": "988",
+      "expectedOutput": "27023618",
+      "sample": false
+    },
+    {
+      "input": "68887",
+      "expectedOutput": "108333883",
+      "sample": false
+    },
+    {
+      "input": "17145",
+      "expectedOutput": "389906673",
+      "sample": false
+    },
+    {
+      "input": "63713",
+      "expectedOutput": "932473333",
+      "sample": false
+    },
+    {
+      "input": "69738",
+      "expectedOutput": "460553116",
+      "sample": false
+    },
+    {
+      "input": "46315",
+      "expectedOutput": "781021779",
+      "sample": false
+    },
+    {
+      "input": "91667",
+      "expectedOutput": "390419044",
+      "sample": false
+    },
+    {
+      "input": "482",
+      "expectedOutput": "443466367",
+      "sample": false
+    },
+    {
+      "input": "392",
+      "expectedOutput": "113622846",
+      "sample": false
+    },
+    {
+      "input": "53268",
+      "expectedOutput": "138285386",
+      "sample": false
+    },
+    {
+      "input": "116",
+      "expectedOutput": "231169256",
+      "sample": false
+    },
+    {
+      "input": "34423",
+      "expectedOutput": "635653786",
+      "sample": false
+    },
+    {
+      "input": "27735",
+      "expectedOutput": "524915952",
+      "sample": false
+    },
+    {
+      "input": "40561",
+      "expectedOutput": "207556309",
+      "sample": false
+    },
+    {
+      "input": "35769",
+      "expectedOutput": "441025342",
+      "sample": false
+    },
+    {
+      "input": "643",
+      "expectedOutput": "756583254",
+      "sample": false
+    },
+    {
+      "input": "57694",
+      "expectedOutput": "521617196",
+      "sample": false
+    },
+    {
+      "input": "21018",
+      "expectedOutput": "767651975",
+      "sample": false
+    },
+    {
+      "input": "800",
+      "expectedOutput": "669753982",
+      "sample": false
+    },
+    {
+      "input": "77385",
+      "expectedOutput": "280908332",
+      "sample": false
+    },
+    {
+      "input": "82273",
+      "expectedOutput": "762866293",
+      "sample": false
+    },
+    {
+      "input": "87861",
+      "expectedOutput": "417376737",
+      "sample": false
+    },
+    {
+      "input": "29059",
+      "expectedOutput": "264911837",
+      "sample": false
+    },
+    {
+      "input": "85475",
+      "expectedOutput": "951313317",
+      "sample": false
+    },
+    {
+      "input": "77493",
+      "expectedOutput": "238925565",
+      "sample": false
+    },
+    {
+      "input": "24096",
+      "expectedOutput": "992957240",
+      "sample": false
+    },
+    {
+      "input": "837",
+      "expectedOutput": "52296607",
+      "sample": false
+    },
+    {
+      "input": "25476",
+      "expectedOutput": "495410567",
+      "sample": false
+    },
+    {
+      "input": "21690",
+      "expectedOutput": "61885530",
+      "sample": false
+    },
+    {
+      "input": "37095",
+      "expectedOutput": "915127919",
+      "sample": false
+    },
+    {
+      "input": "33647",
+      "expectedOutput": "149806036",
+      "sample": false
+    },
+    {
+      "input": "43087",
+      "expectedOutput": "168772139",
+      "sample": false
+    },
+    {
+      "input": "11662",
+      "expectedOutput": "538166707",
+      "sample": false
+    },
+    {
+      "input": "81509",
+      "expectedOutput": "468420359",
+      "sample": false
+    },
+    {
+      "input": "93348",
+      "expectedOutput": "652164461",
+      "sample": false
+    },
+    {
+      "input": "90003",
+      "expectedOutput": "40039631",
+      "sample": false
+    },
+    {
+      "input": "756",
+      "expectedOutput": "617209074",
+      "sample": false
+    },
+    {
+      "input": "89248",
+      "expectedOutput": "204654760",
+      "sample": false
+    },
+    {
+      "input": "14233",
+      "expectedOutput": "792511346",
+      "sample": false
+    },
+    {
+      "input": "37817",
+      "expectedOutput": "176465680",
+      "sample": false
+    },
+    {
+      "input": "17407",
+      "expectedOutput": "203830352",
+      "sample": false
+    },
+    {
+      "input": "55406",
+      "expectedOutput": "195342578",
+      "sample": false
+    },
+    {
+      "input": "572",
+      "expectedOutput": "796934950",
+      "sample": false
+    },
+    {
+      "input": "655",
+      "expectedOutput": "823693831",
+      "sample": false
+    },
+    {
+      "input": "803",
+      "expectedOutput": "559685337",
+      "sample": false
+    },
+    {
+      "input": "51326",
+      "expectedOutput": "775265359",
+      "sample": false
+    },
+    {
+      "input": "594",
+      "expectedOutput": "403431052",
+      "sample": false
+    },
+    {
+      "input": "74761",
+      "expectedOutput": "182711067",
+      "sample": false
+    },
+    {
+      "input": "21992",
+      "expectedOutput": "666808453",
+      "sample": false
+    },
+    {
+      "input": "632",
+      "expectedOutput": "395156894",
+      "sample": false
+    },
+    {
+      "input": "54957",
+      "expectedOutput": "262216460",
+      "sample": false
+    },
+    {
+      "input": "7668",
+      "expectedOutput": "355493332",
+      "sample": false
+    },
+    {
+      "input": "362",
+      "expectedOutput": "725896393",
+      "sample": false
+    },
+    {
+      "input": "50442",
+      "expectedOutput": "701460698",
+      "sample": false
+    },
+    {
+      "input": "27316",
+      "expectedOutput": "220138118",
+      "sample": false
+    },
+    {
+      "input": "71408",
+      "expectedOutput": "818452944",
+      "sample": false
+    },
+    {
+      "input": "25534",
+      "expectedOutput": "911618318",
+      "sample": false
+    },
+    {
+      "input": "27642",
+      "expectedOutput": "137395988",
+      "sample": false
+    },
+    {
+      "input": "53749",
+      "expectedOutput": "21308453",
+      "sample": false
+    },
+    {
+      "input": "42260",
+      "expectedOutput": "794466369",
+      "sample": false
+    },
+    {
+      "input": "12947",
+      "expectedOutput": "69902778",
+      "sample": false
+    },
+    {
+      "input": "79799",
+      "expectedOutput": "544629001",
+      "sample": false
+    },
+    {
+      "input": "177",
+      "expectedOutput": "52364785",
+      "sample": false
+    },
+    {
+      "input": "39436",
+      "expectedOutput": "801779481",
+      "sample": false
+    },
+    {
+      "input": "80364",
+      "expectedOutput": "580525107",
+      "sample": false
+    },
+    {
+      "input": "64930",
+      "expectedOutput": "581257217",
+      "sample": false
+    },
+    {
+      "input": "78275",
+      "expectedOutput": "296157210",
+      "sample": false
+    },
+    {
+      "input": "16877",
+      "expectedOutput": "635474430",
+      "sample": false
+    },
+    {
+      "input": "484",
+      "expectedOutput": "573616246",
+      "sample": false
+    },
+    {
+      "input": "589",
+      "expectedOutput": "497729929",
+      "sample": false
+    },
+    {
+      "input": "41558",
+      "expectedOutput": "140308912",
+      "sample": false
+    },
+    {
+      "input": "82501",
+      "expectedOutput": "385578621",
+      "sample": false
+    },
+    {
+      "input": "17692",
+      "expectedOutput": "288646188",
+      "sample": false
+    },
+    {
+      "input": "1863",
+      "expectedOutput": "672016558",
+      "sample": false
+    },
+    {
+      "input": "61213",
+      "expectedOutput": "306316512",
+      "sample": false
+    },
+    {
+      "input": "952",
+      "expectedOutput": "592142620",
+      "sample": false
+    },
+    {
+      "input": "51012",
+      "expectedOutput": "307678324",
+      "sample": false
+    },
+    {
+      "input": "79432",
+      "expectedOutput": "371819087",
+      "sample": false
+    },
+    {
+      "input": "69675",
+      "expectedOutput": "573172550",
+      "sample": false
+    },
+    {
+      "input": "28325",
+      "expectedOutput": "335669300",
+      "sample": false
+    },
+    {
+      "input": "871",
+      "expectedOutput": "16864548",
+      "sample": false
+    },
+    {
+      "input": "74908",
+      "expectedOutput": "113844326",
+      "sample": false
+    },
+    {
+      "input": "47608",
+      "expectedOutput": "940126407",
+      "sample": false
+    },
+    {
+      "input": "95696",
+      "expectedOutput": "846676369",
+      "sample": false
+    },
+    {
+      "input": "683",
+      "expectedOutput": "750730560",
+      "sample": false
+    },
+    {
+      "input": "50480",
+      "expectedOutput": "583830096",
+      "sample": false
+    },
+    {
+      "input": "93540",
+      "expectedOutput": "774349267",
+      "sample": false
+    },
+    {
+      "input": "73253",
+      "expectedOutput": "678020299",
+      "sample": false
+    },
+    {
+      "input": "3854",
+      "expectedOutput": "978289131",
+      "sample": false
+    },
+    {
+      "input": "76960",
+      "expectedOutput": "660795332",
+      "sample": false
+    },
+    {
+      "input": "796",
+      "expectedOutput": "13872853",
+      "sample": false
+    },
+    {
+      "input": "18755",
+      "expectedOutput": "815985091",
+      "sample": false
+    },
+    {
+      "input": "72228",
+      "expectedOutput": "139555478",
+      "sample": false
+    },
+    {
+      "input": "70334",
+      "expectedOutput": "487133100",
+      "sample": false
+    },
+    {
+      "input": "66306",
+      "expectedOutput": "304876438",
+      "sample": false
+    },
+    {
+      "input": "220",
+      "expectedOutput": "255567932",
+      "sample": false
+    },
+    {
+      "input": "38175",
+      "expectedOutput": "396417409",
+      "sample": false
+    },
+    {
+      "input": "75188",
+      "expectedOutput": "23164631",
+      "sample": false
+    },
+    {
+      "input": "41002",
+      "expectedOutput": "11047743",
+      "sample": false
+    },
+    {
+      "input": "485",
+      "expectedOutput": "703766125",
+      "sample": false
+    },
+    {
+      "input": "32809",
+      "expectedOutput": "111354254",
+      "sample": false
+    },
+    {
+      "input": "4976",
+      "expectedOutput": "553408187",
+      "sample": false
+    },
+    {
+      "input": "150",
+      "expectedOutput": "871763322",
+      "sample": false
+    },
+    {
+      "input": "21004",
+      "expectedOutput": "954136143",
+      "sample": false
+    },
+    {
+      "input": "49984",
+      "expectedOutput": "410137206",
+      "sample": false
+    },
+    {
+      "input": "54567",
+      "expectedOutput": "950787395",
+      "sample": false
+    },
+    {
+      "input": "597",
+      "expectedOutput": "893502383",
+      "sample": false
+    },
+    {
+      "input": "22966",
+      "expectedOutput": "208064117",
+      "sample": false
+    },
+    {
+      "input": "766",
+      "expectedOutput": "404396789",
+      "sample": false
+    },
+    {
+      "input": "81278",
+      "expectedOutput": "549571475",
+      "sample": false
+    },
+    {
+      "input": "452",
+      "expectedOutput": "113690418",
+      "sample": false
+    },
+    {
+      "input": "46099",
+      "expectedOutput": "810894270",
+      "sample": false
+    },
+    {
+      "input": "81811",
+      "expectedOutput": "22452694",
+      "sample": false
+    },
+    {
+      "input": "144",
+      "expectedOutput": "192260311",
+      "sample": false
+    },
+    {
+      "input": "89424",
+      "expectedOutput": "820329743",
+      "sample": false
+    },
+    {
+      "input": "99058",
+      "expectedOutput": "990005453",
+      "sample": false
+    },
+    {
+      "input": "653",
+      "expectedOutput": "868470448",
+      "sample": false
+    },
+    {
+      "input": "167",
+      "expectedOutput": "260203647",
+      "sample": false
+    },
+    {
+      "input": "569",
+      "expectedOutput": "595322835",
+      "sample": false
+    },
+    {
+      "input": "50258",
+      "expectedOutput": "963384484",
+      "sample": false
+    },
+    {
+      "input": "92518",
+      "expectedOutput": "969961224",
+      "sample": false
+    },
+    {
+      "input": "365",
+      "expectedOutput": "634353053",
+      "sample": false
+    },
+    {
+      "input": "41658",
+      "expectedOutput": "971204987",
+      "sample": false
+    },
+    {
+      "input": "27207",
+      "expectedOutput": "31621564",
+      "sample": false
+    },
+    {
+      "input": "61741",
+      "expectedOutput": "45472580",
+      "sample": false
+    },
+    {
+      "input": "11410",
+      "expectedOutput": "544765475",
+      "sample": false
+    },
+    {
+      "input": "11884",
+      "expectedOutput": "344329263",
+      "sample": false
+    },
+    {
+      "input": "56386",
+      "expectedOutput": "31050808",
+      "sample": false
+    },
+    {
+      "input": "64342",
+      "expectedOutput": "126819410",
+      "sample": false
+    },
+    {
+      "input": "72866",
+      "expectedOutput": "347993888",
+      "sample": false
+    },
+    {
+      "input": "314",
+      "expectedOutput": "641834133",
+      "sample": false
+    },
+    {
+      "input": "32569",
+      "expectedOutput": "821794433",
+      "sample": false
+    },
+    {
+      "input": "293",
+      "expectedOutput": "231114695",
+      "sample": false
+    },
+    {
+      "input": "31262",
+      "expectedOutput": "46508704",
+      "sample": false
+    },
+    {
+      "input": "886",
+      "expectedOutput": "312632156",
+      "sample": false
+    },
+    {
+      "input": "26481",
+      "expectedOutput": "81239842",
+      "sample": false
+    },
+    {
+      "input": "19871",
+      "expectedOutput": "621116835",
+      "sample": false
+    },
+    {
+      "input": "35834",
+      "expectedOutput": "639899501",
+      "sample": false
+    },
+    {
+      "input": "2125",
+      "expectedOutput": "875259988",
+      "sample": false
+    },
+    {
+      "input": "852",
+      "expectedOutput": "246728130",
+      "sample": false
+    },
+    {
+      "input": "93952",
+      "expectedOutput": "133706459",
+      "sample": false
+    },
+    {
+      "input": "38733",
+      "expectedOutput": "518615342",
+      "sample": false
+    },
+    {
+      "input": "38924",
+      "expectedOutput": "583592565",
+      "sample": false
+    },
+    {
+      "input": "95818",
+      "expectedOutput": "877473369",
+      "sample": false
+    },
+    {
+      "input": "26417",
+      "expectedOutput": "125577113",
+      "sample": false
+    },
+    {
+      "input": "59362",
+      "expectedOutput": "491134242",
+      "sample": false
+    },
+    {
+      "input": "168",
+      "expectedOutput": "640098929",
+      "sample": false
+    },
+    {
+      "input": "5454",
+      "expectedOutput": "840849768",
+      "sample": false
+    },
+    {
+      "input": "40108",
+      "expectedOutput": "906733762",
+      "sample": false
+    },
+    {
+      "input": "88981",
+      "expectedOutput": "783390137",
+      "sample": false
+    },
+    {
+      "input": "45829",
+      "expectedOutput": "942995949",
+      "sample": false
+    },
+    {
+      "input": "24319",
+      "expectedOutput": "642924466",
+      "sample": false
+    },
+    {
+      "input": "71924",
+      "expectedOutput": "311674815",
+      "sample": false
+    },
+    {
+      "input": "50338",
+      "expectedOutput": "307539702",
+      "sample": false
+    },
+    {
+      "input": "75782",
+      "expectedOutput": "872665489",
+      "sample": false
+    },
+    {
+      "input": "20128",
+      "expectedOutput": "406268868",
+      "sample": false
+    },
+    {
+      "input": "5950",
+      "expectedOutput": "183210866",
+      "sample": false
+    },
+    {
+      "input": "938",
+      "expectedOutput": "7541693",
+      "sample": false
+    },
+    {
+      "input": "17924",
+      "expectedOutput": "694897232",
+      "sample": false
+    },
+    {
+      "input": "85014",
+      "expectedOutput": "912201055",
+      "sample": false
+    },
+    {
+      "input": "15601",
+      "expectedOutput": "123330765",
+      "sample": false
+    },
+    {
+      "input": "89040",
+      "expectedOutput": "170643123",
+      "sample": false
+    },
+    {
+      "input": "62927",
+      "expectedOutput": "172195600",
+      "sample": false
+    },
+    {
+      "input": "35123",
+      "expectedOutput": "46509134",
+      "sample": false
+    },
+    {
+      "input": "2795",
+      "expectedOutput": "609918357",
+      "sample": false
+    },
+    {
+      "input": "12201",
+      "expectedOutput": "845017194",
+      "sample": false
+    },
+    {
+      "input": "162",
+      "expectedOutput": "118865462",
+      "sample": false
+    },
+    {
+      "input": "84639",
+      "expectedOutput": "938294316",
+      "sample": false
+    },
+    {
+      "input": "513",
+      "expectedOutput": "499640745",
+      "sample": false
+    },
+    {
+      "input": "35037",
+      "expectedOutput": "413457169",
+      "sample": false
+    },
+    {
+      "input": "33700",
+      "expectedOutput": "991042129",
+      "sample": false
+    },
+    {
+      "input": "16411",
+      "expectedOutput": "417950519",
+      "sample": false
+    },
+    {
+      "input": "436",
+      "expectedOutput": "466772836",
+      "sample": false
+    },
+    {
+      "input": "72219",
+      "expectedOutput": "642938810",
+      "sample": false
+    },
+    {
+      "input": "29310",
+      "expectedOutput": "978546550",
+      "sample": false
+    },
+    {
+      "input": "778",
+      "expectedOutput": "352606799",
+      "sample": false
+    },
+    {
+      "input": "8101",
+      "expectedOutput": "152540342",
+      "sample": false
+    },
+    {
+      "input": "39724",
+      "expectedOutput": "736573690",
+      "sample": false
+    },
+    {
+      "input": "68710",
+      "expectedOutput": "806677015",
+      "sample": false
+    },
+    {
+      "input": "78359",
+      "expectedOutput": "105161115",
+      "sample": false
+    },
+    {
+      "input": "98470",
+      "expectedOutput": "416768429",
+      "sample": false
+    },
+    {
+      "input": "54560",
+      "expectedOutput": "485594383",
+      "sample": false
+    },
+    {
+      "input": "39601",
+      "expectedOutput": "48940055",
+      "sample": false
+    },
+    {
+      "input": "40420",
+      "expectedOutput": "209690562",
+      "sample": false
+    },
+    {
+      "input": "18963",
+      "expectedOutput": "17712347",
+      "sample": false
+    },
+    {
+      "input": "32725",
+      "expectedOutput": "338072840",
+      "sample": false
+    },
+    {
+      "input": "53865",
+      "expectedOutput": "721105955",
+      "sample": false
+    },
+    {
+      "input": "19356",
+      "expectedOutput": "900168206",
+      "sample": false
+    },
+    {
+      "input": "61003",
+      "expectedOutput": "352100104",
+      "sample": false
+    },
+    {
+      "input": "93887",
+      "expectedOutput": "430364453",
+      "sample": false
+    },
+    {
+      "input": "226",
+      "expectedOutput": "11962051",
+      "sample": false
+    },
+    {
+      "input": "606",
+      "expectedOutput": "190498963",
+      "sample": false
+    },
+    {
+      "input": "56366",
+      "expectedOutput": "203426411",
+      "sample": false
+    },
+    {
+      "input": "56639",
+      "expectedOutput": "48346294",
+      "sample": false
+    },
+    {
+      "input": "39126",
+      "expectedOutput": "458407399",
+      "sample": false
+    },
+    {
+      "input": "350",
+      "expectedOutput": "724978824",
+      "sample": false
+    },
+    {
+      "input": "76604",
+      "expectedOutput": "824188990",
+      "sample": false
+    },
+    {
+      "input": "41555",
+      "expectedOutput": "793696302",
+      "sample": false
+    },
+    {
+      "input": "80461",
+      "expectedOutput": "645701354",
+      "sample": false
+    },
+    {
+      "input": "14710",
+      "expectedOutput": "548950201",
+      "sample": false
+    },
+    {
+      "input": "63696",
+      "expectedOutput": "25568625",
+      "sample": false
+    },
+    {
+      "input": "84183",
+      "expectedOutput": "312288137",
+      "sample": false
+    },
+    {
+      "input": "32661",
+      "expectedOutput": "283533975",
+      "sample": false
+    },
+    {
+      "input": "26923",
+      "expectedOutput": "312153616",
+      "sample": false
+    },
+    {
+      "input": "91435",
+      "expectedOutput": "40254608",
+      "sample": false
+    },
+    {
+      "input": "14267",
+      "expectedOutput": "433012693",
+      "sample": false
+    },
+    {
+      "input": "48232",
+      "expectedOutput": "529761676",
+      "sample": false
+    },
+    {
+      "input": "88907",
+      "expectedOutput": "828620879",
+      "sample": false
+    },
+    {
+      "input": "67246",
+      "expectedOutput": "214175409",
+      "sample": false
+    },
+    {
+      "input": "93360",
+      "expectedOutput": "684146878",
+      "sample": false
+    },
+    {
+      "input": "97754",
+      "expectedOutput": "169822265",
+      "sample": false
+    },
+    {
+      "input": "13840",
+      "expectedOutput": "72354553",
+      "sample": false
+    },
+    {
+      "input": "605",
+      "expectedOutput": "496881785",
+      "sample": false
+    },
+    {
+      "input": "16940",
+      "expectedOutput": "708672760",
+      "sample": false
+    },
+    {
+      "input": "83224",
+      "expectedOutput": "909128256",
+      "sample": false
+    },
+    {
+      "input": "33808",
+      "expectedOutput": "528530467",
+      "sample": false
+    },
+    {
+      "input": "16767",
+      "expectedOutput": "949026698",
+      "sample": false
+    },
+    {
+      "input": "28169",
+      "expectedOutput": "662590364",
+      "sample": false
+    },
+    {
+      "input": "58239",
+      "expectedOutput": "576889304",
+      "sample": false
+    },
+    {
+      "input": "97546",
+      "expectedOutput": "343059788",
+      "sample": false
+    },
+    {
+      "input": "83128",
+      "expectedOutput": "820847646",
+      "sample": false
+    },
+    {
+      "input": "92652",
+      "expectedOutput": "794483601",
+      "sample": false
+    },
+    {
+      "input": "33334",
+      "expectedOutput": "502689246",
+      "sample": false
+    },
+    {
+      "input": "14826",
+      "expectedOutput": "626789224",
+      "sample": false
+    },
+    {
+      "input": "74006",
+      "expectedOutput": "606609812",
+      "sample": false
+    },
+    {
+      "input": "179",
+      "expectedOutput": "332369554",
+      "sample": false
+    },
+    {
+      "input": "97652",
+      "expectedOutput": "210857908",
+      "sample": false
+    },
+    {
+      "input": "84920",
+      "expectedOutput": "246970499",
+      "sample": false
+    },
+    {
+      "input": "30933",
+      "expectedOutput": "160446123",
+      "sample": false
+    },
+    {
+      "input": "26138",
+      "expectedOutput": "199318858",
+      "sample": false
+    },
+    {
+      "input": "94031",
+      "expectedOutput": "706253786",
+      "sample": false
+    },
+    {
+      "input": "50496",
+      "expectedOutput": "770231492",
+      "sample": false
+    },
+    {
+      "input": "21788",
+      "expectedOutput": "617039881",
+      "sample": false
+    },
+    {
+      "input": "37891",
+      "expectedOutput": "488778392",
+      "sample": false
+    },
+    {
+      "input": "43901",
+      "expectedOutput": "585901823",
+      "sample": false
+    },
+    {
+      "input": "96687",
+      "expectedOutput": "968572265",
+      "sample": false
+    },
+    {
+      "input": "320",
+      "expectedOutput": "660115551",
+      "sample": false
+    },
+    {
+      "input": "37162",
+      "expectedOutput": "804139754",
+      "sample": false
+    },
+    {
+      "input": "968",
+      "expectedOutput": "257025055",
+      "sample": false
+    },
+    {
+      "input": "32093",
+      "expectedOutput": "695512694",
+      "sample": false
+    },
+    {
+      "input": "53290",
+      "expectedOutput": "993334555",
+      "sample": false
+    },
+    {
+      "input": "16896",
+      "expectedOutput": "341351246",
+      "sample": false
+    },
+    {
+      "input": "836",
+      "expectedOutput": "582999967",
+      "sample": false
+    },
+    {
+      "input": "41306",
+      "expectedOutput": "367986755",
+      "sample": false
+    },
+    {
+      "input": "91182",
+      "expectedOutput": "834503851",
+      "sample": false
+    },
+    {
+      "input": "399",
+      "expectedOutput": "967250938",
+      "sample": false
+    },
+    {
+      "input": "2232",
+      "expectedOutput": "682098347",
+      "sample": false
+    },
+    {
+      "input": "45675",
+      "expectedOutput": "905125712",
+      "sample": false
+    },
+    {
+      "input": "980",
+      "expectedOutput": "608024975",
+      "sample": false
+    },
+    {
+      "input": "17811",
+      "expectedOutput": "198674589",
+      "sample": false
+    },
+    {
+      "input": "24857",
+      "expectedOutput": "974858417",
+      "sample": false
+    },
+    {
+      "input": "79460",
+      "expectedOutput": "334427022",
+      "sample": false
+    },
+    {
+      "input": "70302",
+      "expectedOutput": "76991456",
+      "sample": false
+    },
+    {
+      "input": "70103",
+      "expectedOutput": "181499829",
+      "sample": false
+    },
+    {
+      "input": "84907",
+      "expectedOutput": "566574777",
+      "sample": false
+    },
+    {
+      "input": "25839",
+      "expectedOutput": "854590497",
+      "sample": false
+    },
+    {
+      "input": "48512",
+      "expectedOutput": "653942566",
+      "sample": false
+    },
+    {
+      "input": "164",
+      "expectedOutput": "499586917",
+      "sample": false
+    },
+    {
+      "input": "14526",
+      "expectedOutput": "145101100",
+      "sample": false
+    },
+    {
+      "input": "22131",
+      "expectedOutput": "62162845",
+      "sample": false
+    },
+    {
+      "input": "46331",
+      "expectedOutput": "266355014",
+      "sample": false
+    },
+    {
+      "input": "76926",
+      "expectedOutput": "795358989",
+      "sample": false
+    },
+    {
+      "input": "89535",
+      "expectedOutput": "445079732",
+      "sample": false
+    },
+    {
+      "input": "88861",
+      "expectedOutput": "632777108",
+      "sample": false
+    },
+    {
+      "input": "92837",
+      "expectedOutput": "953964521",
+      "sample": false
+    },
+    {
+      "input": "48589",
+      "expectedOutput": "917928476",
+      "sample": false
+    },
+    {
+      "input": "53493",
+      "expectedOutput": "68905320",
+      "sample": false
+    },
+    {
+      "input": "668",
+      "expectedOutput": "99620426",
+      "sample": false
+    },
+    {
+      "input": "30273",
+      "expectedOutput": "721721722",
+      "sample": false
+    },
+    {
+      "input": "321",
+      "expectedOutput": "742458502",
+      "sample": false
+    },
+    {
+      "input": "61735",
+      "expectedOutput": "936246392",
+      "sample": false
+    },
+    {
+      "input": "72108",
+      "expectedOutput": "438814264",
+      "sample": false
+    },
+    {
+      "input": "24347",
+      "expectedOutput": "280213359",
+      "sample": false
+    },
+    {
+      "input": "32707",
+      "expectedOutput": "340885675",
+      "sample": false
+    },
+    {
+      "input": "97042",
+      "expectedOutput": "584730193",
+      "sample": false
+    },
+    {
+      "input": "17204",
+      "expectedOutput": "18701481",
+      "sample": false
+    },
+    {
+      "input": "16803",
+      "expectedOutput": "849877222",
+      "sample": false
+    },
+    {
+      "input": "274",
+      "expectedOutput": "161031715",
+      "sample": false
+    },
+    {
+      "input": "584",
+      "expectedOutput": "928401875",
+      "sample": false
+    },
+    {
+      "input": "27926",
+      "expectedOutput": "605427300",
+      "sample": false
+    },
+    {
+      "input": "607",
+      "expectedOutput": "687380748",
+      "sample": false
+    },
+    {
+      "input": "72672",
+      "expectedOutput": "660329220",
+      "sample": false
+    },
+    {
+      "input": "88185",
+      "expectedOutput": "885083413",
+      "sample": false
+    },
+    {
+      "input": "446",
+      "expectedOutput": "772023466",
+      "sample": false
+    },
+    {
+      "input": "82813",
+      "expectedOutput": "631766454",
+      "sample": false
+    },
+    {
+      "input": "48092",
+      "expectedOutput": "354886116",
+      "sample": false
+    },
+    {
+      "input": "20276",
+      "expectedOutput": "291584711",
+      "sample": false
+    },
+    {
+      "input": "30012",
+      "expectedOutput": "977346201",
+      "sample": false
+    },
+    {
+      "input": "67134",
+      "expectedOutput": "382995715",
+      "sample": false
+    },
+    {
+      "input": "46537",
+      "expectedOutput": "861938500",
+      "sample": false
+    },
+    {
+      "input": "8065",
+      "expectedOutput": "236666340",
+      "sample": false
+    },
+    {
+      "input": "89831",
+      "expectedOutput": "408832531",
+      "sample": false
+    },
+    {
+      "input": "8077",
+      "expectedOutput": "769599256",
+      "sample": false
+    },
+    {
+      "input": "75800",
+      "expectedOutput": "690512890",
+      "sample": false
+    },
+    {
+      "input": "40920",
+      "expectedOutput": "942283234",
+      "sample": false
+    },
+    {
+      "input": "2821",
+      "expectedOutput": "452587726",
+      "sample": false
+    },
+    {
+      "input": "85",
+      "expectedOutput": "786116714",
+      "sample": false
+    },
+    {
+      "input": "89440",
+      "expectedOutput": "993254939",
+      "sample": false
+    },
+    {
+      "input": "900",
+      "expectedOutput": "50619274",
+      "sample": false
+    },
+    {
+      "input": "11351",
+      "expectedOutput": "762764913",
+      "sample": false
+    },
+    {
+      "input": "13667",
+      "expectedOutput": "111987311",
+      "sample": false
+    },
+    {
+      "input": "550",
+      "expectedOutput": "611172878",
+      "sample": false
+    },
+    {
+      "input": "97",
+      "expectedOutput": "593786270",
+      "sample": false
+    },
+    {
+      "input": "50264",
+      "expectedOutput": "299933294",
+      "sample": false
+    },
+    {
+      "input": "63459",
+      "expectedOutput": "663756014",
+      "sample": false
+    },
+    {
+      "input": "58521",
+      "expectedOutput": "225799438",
+      "sample": false
+    },
+    {
+      "input": "71681",
+      "expectedOutput": "397878192",
+      "sample": false
+    },
+    {
+      "input": "81486",
+      "expectedOutput": "887278712",
+      "sample": false
+    },
+    {
+      "input": "68891",
+      "expectedOutput": "773583684",
+      "sample": false
+    },
+    {
+      "input": "81186",
+      "expectedOutput": "220510757",
+      "sample": false
+    },
+    {
+      "input": "98780",
+      "expectedOutput": "321448694",
+      "sample": false
+    },
+    {
+      "input": "152",
+      "expectedOutput": "639346170",
+      "sample": false
+    },
+    {
+      "input": "9724",
+      "expectedOutput": "642877868",
+      "sample": false
+    },
+    {
+      "input": "20960",
+      "expectedOutput": "247360830",
+      "sample": false
+    },
+    {
+      "input": "90369",
+      "expectedOutput": "952377316",
+      "sample": false
+    },
+    {
+      "input": "23495",
+      "expectedOutput": "488762719",
+      "sample": false
+    },
+    {
+      "input": "327",
+      "expectedOutput": "932884836",
+      "sample": false
+    },
+    {
+      "input": "44232",
+      "expectedOutput": "958017062",
+      "sample": false
+    },
+    {
+      "input": "34467",
+      "expectedOutput": "775809541",
+      "sample": false
+    },
+    {
+      "input": "44985",
+      "expectedOutput": "510539447",
+      "sample": false
+    },
+    {
+      "input": "701",
+      "expectedOutput": "875108794",
+      "sample": false
+    },
+    {
+      "input": "34523",
+      "expectedOutput": "390263692",
+      "sample": false
+    },
+    {
+      "input": "42961",
+      "expectedOutput": "388429845",
+      "sample": false
+    },
+    {
+      "input": "89740",
+      "expectedOutput": "581916892",
+      "sample": false
+    },
+    {
+      "input": "57451",
+      "expectedOutput": "790281806",
+      "sample": false
+    },
+    {
+      "input": "33005",
+      "expectedOutput": "178650247",
+      "sample": false
+    },
+    {
+      "input": "3449",
+      "expectedOutput": "165592705",
+      "sample": false
+    },
+    {
+      "input": "17513",
+      "expectedOutput": "4961698",
+      "sample": false
+    },
+    {
+      "input": "71081",
+      "expectedOutput": "43887129",
+      "sample": false
+    },
+    {
+      "input": "20647",
+      "expectedOutput": "669264615",
+      "sample": false
+    },
+    {
+      "input": "30639",
+      "expectedOutput": "236053618",
+      "sample": false
+    },
+    {
+      "input": "15298",
+      "expectedOutput": "401719074",
+      "sample": false
+    },
+    {
+      "input": "13595",
+      "expectedOutput": "389388110",
+      "sample": false
+    },
+    {
+      "input": "60422",
+      "expectedOutput": "307425161",
+      "sample": false
+    },
+    {
+      "input": "78718",
+      "expectedOutput": "722273402",
+      "sample": false
+    },
+    {
+      "input": "41546",
+      "expectedOutput": "239118145",
+      "sample": false
+    },
+    {
+      "input": "55451",
+      "expectedOutput": "812285792",
+      "sample": false
+    },
+    {
+      "input": "95833",
+      "expectedOutput": "679737540",
+      "sample": false
+    },
+    {
+      "input": "703",
+      "expectedOutput": "235820520",
+      "sample": false
+    },
+    {
+      "input": "43404",
+      "expectedOutput": "255987498",
+      "sample": false
+    },
+    {
+      "input": "3965",
+      "expectedOutput": "728140808",
+      "sample": false
+    },
+    {
+      "input": "75868",
+      "expectedOutput": "508517595",
+      "sample": false
+    },
+    {
+      "input": "262",
+      "expectedOutput": "661498184",
+      "sample": false
+    },
+    {
+      "input": "78918",
+      "expectedOutput": "585755695",
+      "sample": false
+    },
+    {
+      "input": "70018",
+      "expectedOutput": "743213972",
+      "sample": false
+    },
+    {
+      "input": "62301",
+      "expectedOutput": "567115307",
+      "sample": false
+    },
+    {
+      "input": "971",
+      "expectedOutput": "947758327",
+      "sample": false
+    },
+    {
+      "input": "43053",
+      "expectedOutput": "290686867",
+      "sample": false
+    },
+    {
+      "input": "865",
+      "expectedOutput": "232948008",
+      "sample": false
+    },
+    {
+      "input": "149",
+      "expectedOutput": "895819540",
+      "sample": false
+    },
+    {
+      "input": "14436",
+      "expectedOutput": "604281310",
+      "sample": false
+    },
+    {
+      "input": "76809",
+      "expectedOutput": "536348281",
+      "sample": false
+    },
+    {
+      "input": "60215",
+      "expectedOutput": "84923334",
+      "sample": false
+    },
+    {
+      "input": "7434",
+      "expectedOutput": "786798662",
+      "sample": false
+    },
+    {
+      "input": "89750",
+      "expectedOutput": "165361726",
+      "sample": false
+    },
+    {
+      "input": "34348",
+      "expectedOutput": "325900189",
+      "sample": false
+    },
+    {
+      "input": "807",
+      "expectedOutput": "142585632",
+      "sample": false
+    },
+    {
+      "input": "657",
+      "expectedOutput": "602611038",
+      "sample": false
+    },
+    {
+      "input": "66427",
+      "expectedOutput": "269451759",
+      "sample": false
+    },
+    {
+      "input": "767",
+      "expectedOutput": "988620096",
+      "sample": false
+    },
+    {
+      "input": "15680",
+      "expectedOutput": "847604754",
+      "sample": false
+    },
+    {
+      "input": "82755",
+      "expectedOutput": "317845994",
+      "sample": false
+    },
+    {
+      "input": "596",
+      "expectedOutput": "148466714",
+      "sample": false
+    },
+    {
+      "input": "88731",
+      "expectedOutput": "37378211",
+      "sample": false
+    },
+    {
+      "input": "86156",
+      "expectedOutput": "767859739",
+      "sample": false
+    },
+    {
+      "input": "21504",
+      "expectedOutput": "330969417",
+      "sample": false
+    },
+    {
+      "input": "3010",
+      "expectedOutput": "818955212",
+      "sample": false
+    },
+    {
+      "input": "34841",
+      "expectedOutput": "940203478",
+      "sample": false
+    },
+    {
+      "input": "43345",
+      "expectedOutput": "3102551",
+      "sample": false
+    },
+    {
+      "input": "92020",
+      "expectedOutput": "438813990",
+      "sample": false
+    },
+    {
+      "input": "577",
+      "expectedOutput": "356123996",
+      "sample": false
+    },
+    {
+      "input": "9223",
+      "expectedOutput": "720843449",
+      "sample": false
+    },
+    {
+      "input": "919",
+      "expectedOutput": "218735366",
+      "sample": false
+    },
+    {
+      "input": "44082",
+      "expectedOutput": "199557384",
+      "sample": false
+    },
+    {
+      "input": "41684",
+      "expectedOutput": "420400277",
+      "sample": false
+    },
+    {
+      "input": "54253",
+      "expectedOutput": "401173162",
+      "sample": false
+    },
+    {
+      "input": "12220",
+      "expectedOutput": "716621405",
+      "sample": false
+    },
+    {
+      "input": "9852",
+      "expectedOutput": "701482701",
+      "sample": false
+    },
+    {
+      "input": "48943",
+      "expectedOutput": "227117672",
+      "sample": false
+    },
+    {
+      "input": "60046",
+      "expectedOutput": "705790049",
+      "sample": false
+    },
+    {
+      "input": "295",
+      "expectedOutput": "542201024",
+      "sample": false
+    },
+    {
+      "input": "244",
+      "expectedOutput": "783605658",
+      "sample": false
+    },
+    {
+      "input": "27374",
+      "expectedOutput": "419264650",
+      "sample": false
+    },
+    {
+      "input": "794",
+      "expectedOutput": "147076283",
+      "sample": false
+    },
+    {
+      "input": "230",
+      "expectedOutput": "111401127",
+      "sample": false
+    },
+    {
+      "input": "56556",
+      "expectedOutput": "828039581",
+      "sample": false
+    },
+    {
+      "input": "593",
+      "expectedOutput": "341604617",
+      "sample": false
+    },
+    {
+      "input": "383",
+      "expectedOutput": "672367962",
+      "sample": false
+    },
+    {
+      "input": "696",
+      "expectedOutput": "802688355",
+      "sample": false
+    },
+    {
+      "input": "2835",
+      "expectedOutput": "689712263",
+      "sample": false
+    },
+    {
+      "input": "395",
+      "expectedOutput": "814894877",
+      "sample": false
+    },
+    {
+      "input": "91311",
+      "expectedOutput": "711670519",
+      "sample": false
+    },
+    {
+      "input": "19155",
+      "expectedOutput": "881623942",
+      "sample": false
+    },
+    {
+      "input": "842",
+      "expectedOutput": "333372670",
+      "sample": false
+    },
+    {
+      "input": "26883",
+      "expectedOutput": "810449854",
+      "sample": false
+    },
+    {
+      "input": "20483",
+      "expectedOutput": "755804806",
+      "sample": false
+    },
+    {
+      "input": "815",
+      "expectedOutput": "926312963",
+      "sample": false
+    },
+    {
+      "input": "75314",
+      "expectedOutput": "190654027",
+      "sample": false
+    },
+    {
+      "input": "24491",
+      "expectedOutput": "833027407",
+      "sample": false
+    },
+    {
+      "input": "847",
+      "expectedOutput": "719395956",
+      "sample": false
+    },
+    {
+      "input": "528",
+      "expectedOutput": "482383063",
+      "sample": false
+    },
+    {
+      "input": "391",
+      "expectedOutput": "737013173",
+      "sample": false
+    },
+    {
+      "input": "63526",
+      "expectedOutput": "190759653",
+      "sample": false
+    },
+    {
+      "input": "78793",
+      "expectedOutput": "995730225",
+      "sample": false
+    },
+    {
+      "input": "27973",
+      "expectedOutput": "824744686",
+      "sample": false
+    },
+    {
+      "input": "32647",
+      "expectedOutput": "902196343",
+      "sample": false
+    },
+    {
+      "input": "22619",
+      "expectedOutput": "485079558",
+      "sample": false
+    },
+    {
+      "input": "86568",
+      "expectedOutput": "112171126",
+      "sample": false
+    },
+    {
+      "input": "16645",
+      "expectedOutput": "426497090",
+      "sample": false
+    },
+    {
+      "input": "94627",
+      "expectedOutput": "555420444",
+      "sample": false
+    },
+    {
+      "input": "783",
+      "expectedOutput": "965910216",
+      "sample": false
+    },
+    {
+      "input": "987",
+      "expectedOutput": "130632480",
+      "sample": false
+    },
+    {
+      "input": "90021",
+      "expectedOutput": "226316141",
+      "sample": false
+    },
+    {
+      "input": "64078",
+      "expectedOutput": "291557362",
+      "sample": false
+    },
+    {
+      "input": "14270",
+      "expectedOutput": "250799770",
+      "sample": false
+    },
+    {
+      "input": "403",
+      "expectedOutput": "955861654",
+      "sample": false
+    },
+    {
+      "input": "604",
+      "expectedOutput": "693617185",
+      "sample": false
+    },
+    {
+      "input": "16722",
+      "expectedOutput": "8238127",
+      "sample": false
+    },
+    {
+      "input": "51653",
+      "expectedOutput": "142351800",
+      "sample": false
+    },
+    {
+      "input": "57098",
+      "expectedOutput": "258443689",
+      "sample": false
     }
   ]
 }

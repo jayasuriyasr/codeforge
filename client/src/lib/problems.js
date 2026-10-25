@@ -8,15 +8,19 @@
 // functions are just the queries.
 
 import { requireDb, unwrap } from './supabase.js';
-import { toProblem, DIFFICULTY_ORDER } from './problemShape.js';
+import { toProblem, toTestCases, DIFFICULTY_ORDER } from './problemShape.js';
 
 export { toProblem, DIFFICULTY_ORDER };
 
 const LIST_COLUMNS =
   'id, slug, title, difficulty, tags, time_limit_sec, memory_limit_mb, published, created_by, created_at, updated_at, test_cases(count)';
-const FULL_COLUMNS =
-  'id, slug, title, difficulty, tags, statement, time_limit_sec, memory_limit_mb, checker_type, published, created_by, '
-  + 'test_cases(position, input, expected_output, is_sample)';
+const PROBLEM_COLUMNS =
+  'id, slug, title, difficulty, tags, statement, time_limit_sec, memory_limit_mb, checker_type, published, created_by, updated_at';
+const CASE_COLUMNS = 'position, input, expected_output, is_sample';
+const FULL_COLUMNS = `${PROBLEM_COLUMNS}, test_cases(${CASE_COLUMNS})`;
+// Opening a problem fetches only its samples (plus how many cases there are);
+// big hidden cases can be megabytes, so they're downloaded on the first Judge.
+const SOLVE_COLUMNS = `${PROBLEM_COLUMNS}, samples:test_cases(${CASE_COLUMNS}), test_cases(count)`;
 
 const byDifficultyThenTitle = (a, b) =>
   (DIFFICULTY_ORDER[a.difficulty] - DIFFICULTY_ORDER[b.difficulty]) || a.title.localeCompare(b.title);
@@ -27,11 +31,32 @@ export async function loadIndex() {
   return rows.map(toProblem).sort(byDifficultyThenTitle);
 }
 
-/** One problem with every test case, by slug. Drafts resolve only for their author. */
+/**
+ * One problem by slug, with its SAMPLE test cases only (`allCasesLoaded` is
+ * false); `loadAllTestCases` fetches the rest. Drafts resolve only for their author.
+ */
 export async function loadProblem(slug) {
-  const row = unwrap(await requireDb().from('problems').select(FULL_COLUMNS).eq('slug', slug).maybeSingle());
+  const row = unwrap(await requireDb().from('problems').select(SOLVE_COLUMNS)
+    .eq('slug', slug).eq('samples.is_sample', true).maybeSingle());
   if (!row) throw new Error('problem not found');
   return toProblem(row);
+}
+
+// Full test sets, kept for the session. Keyed by updated_at too, so an admin's
+// edit is picked up on the next page load.
+const _allCases = new Map();
+
+/** Every test case of `problem` (from loadProblem), downloaded once per session. */
+export async function loadAllTestCases(problem) {
+  if (problem.allCasesLoaded) return problem.testCases;
+  const key = `${problem.id}@${problem.updatedAt}`;
+  if (!_allCases.has(key)) {
+    const p = requireDb().from('test_cases').select(CASE_COLUMNS).eq('problem_id', problem.id)
+      .order('position').then((res) => toTestCases(unwrap(res)));
+    _allCases.set(key, p);
+    p.catch(() => _allCases.delete(key));
+  }
+  return _allCases.get(key);
 }
 
 export async function loadProblemById(id) {

@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import Shell from '../components/Shell.jsx';
 import Verdict, { Chip } from '../components/Verdict.jsx';
-import { loadProblem } from '../lib/problems.js';
+import { loadProblem, loadAllTestCases } from '../lib/problems.js';
 import { renderMarkdown } from '../lib/md.js';
 import { LANGUAGES, MONACO_LANG, STARTERS } from '../lib/starters.js';
 import { getDraft, saveDraft, getLang, setLang, markSolved } from '../lib/profile.js';
@@ -101,10 +101,14 @@ export default function Solve() {
   }
 
   const NEEDS_BUILD = new Set(['c', 'cpp', 'java']);
+  const NEEDS_DOWNLOAD = new Set(['python', 'c', 'cpp', 'java']);   // a runtime is fetched on first use
 
   function firstBuildHint() {
-    if (!NEEDS_BUILD.has(language) || everRan.has(language)) return '';
+    if (!NEEDS_DOWNLOAD.has(language) || everRan.has(language)) return '';
     const tc = toolchainInfo(language);
+    if (!NEEDS_BUILD.has(language)) {
+      return `Loading ${tc?.label || language} — the first run in this browser may download ~${tc?.approxMB || 12} MB (saved for next time)…`;
+    }
     return `Preparing ${tc?.label || language} — the first run downloads ~${tc?.approxMB || 20} MB `
       + 'and compiles your code. This can take up to a minute; later runs are quick.';
   }
@@ -117,7 +121,7 @@ export default function Solve() {
     const out = [];
     for (let i = 0; i < sampleCases.length; i++) {
       setProgress({ done: i, total: sampleCases.length });
-      if (everRan.has(language) || !NEEDS_BUILD.has(language)) {
+      if (everRan.has(language) || !NEEDS_DOWNLOAD.has(language)) {
         setStage(`Running sample ${i + 1} of ${sampleCases.length}…`);
       }
       const tc = sampleCases[i];
@@ -128,7 +132,7 @@ export default function Solve() {
       });
       out.push({ i: i + 1, input: tc.input, expected: tc.expectedOutput, ...r });
       setSamples([...out]);
-      if (NEEDS_BUILD.has(language)) setEverRan((s) => new Set(s).add(language));
+      if (NEEDS_DOWNLOAD.has(language)) setEverRan((s) => new Set(s).add(language));
     }
     setRunning(false); setProgress(null); setStage('');
   }
@@ -144,7 +148,7 @@ export default function Solve() {
         timeLimitSec: problem.timeLimitSec, memoryLimitMB: problem.memoryLimitMB,
       });
       setCustomResult(r);
-      if (NEEDS_BUILD.has(language)) setEverRan((s) => new Set(s).add(language));
+      if (NEEDS_DOWNLOAD.has(language)) setEverRan((s) => new Set(s).add(language));
     } finally {
       setRunning(false); setStage('');
     }
@@ -157,7 +161,7 @@ export default function Solve() {
     }
     try {
       const saved = await saveSubmission({
-        problemId: problem.id, language, code, result: r, totalCases: problem.testCases.length,
+        problemId: problem.id, language, code, result: r, totalCases: problem.caseCount,
       });
       if (saved) {
         if (r.verdict === 'AC') markSolvedId(problem.id);
@@ -173,14 +177,23 @@ export default function Solve() {
     if (!problem) return;
     setSaveNote(null);
     setRunning(true); setResult(null); setSamples([]);
+    setProgress({ done: 0, total: problem.caseCount });
+    let testCases;
+    try {
+      if (!problem.allCasesLoaded) setStage(`Downloading ${problem.caseCount} test cases…`);
+      testCases = await loadAllTestCases(problem);
+    } catch (e) {
+      setResult({ verdict: 'NETWORK', error: String(e.message || e), cases: [] });
+      setRunning(false); setProgress(null); setStage('');
+      return;
+    }
     setStage(firstBuildHint() || 'Judging every test case…');
-    setProgress({ done: 0, total: problem.testCases.length });
     try {
       const r = await judgePractice({
-        language, code, problem,
+        language, code, problem: { ...problem, testCases },
         onProgress: (p) => {
           setProgress({ done: p.done, total: p.total });
-          if (NEEDS_BUILD.has(language)) setEverRan((s) => new Set(s).add(language));
+          if (NEEDS_DOWNLOAD.has(language)) setEverRan((s) => new Set(s).add(language));
           setStage(`Judging case ${p.done} of ${p.total}…`);
         },
       });
@@ -220,6 +233,12 @@ export default function Solve() {
     return <Shell><div className="solve-loading">Loading…</div></Shell>;
   }
 
+  const jsMemNote = language === 'javascript' && (
+    <span className="solve-tc" title="Browsers don't let a page measure a worker's JavaScript memory. Python, C and C++ memory is measured exactly.">
+      memory limit not measured for JavaScript
+    </span>
+  );
+
   const tcBadge = EXPERIMENTAL.has(language) && (
     <span className="solve-tc">
       {toolchain === 'checking' && <>preparing {toolchainInfo(language)?.label}…</>}
@@ -241,7 +260,7 @@ export default function Solve() {
             <div className="solve-limits">
               <span className={`cat-diff cat-diff--${problem.difficulty}`}>{problem.difficulty}</span>
               <span>{problem.timeLimitSec}s</span><span>{problem.memoryLimitMB}MB</span>
-              <span>{problem.testCases.length} test cases</span>
+              <span>{problem.caseCount} test cases</span>
             </div>
           </div>
 
@@ -341,6 +360,7 @@ export default function Solve() {
               {LANGUAGES.map((l) => <option key={l.id} value={l.id}>{l.label}</option>)}
             </select>
             {tcBadge}
+            {jsMemNote}
           </div>
 
           <div className="solve-editor">

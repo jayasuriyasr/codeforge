@@ -53,14 +53,20 @@ flowchart LR
 |---|---|
 | JavaScript | A throwaway Web Worker per run |
 | Python 3 | [Pyodide](https://pyodide.org) (CPython compiled to WebAssembly) |
-| C / C++ | Clang + LLVM compiled to WebAssembly ([emception](https://github.com/jprendes/emception)) |
-| Java | [CheerpJ](https://cheerpj.com) (a JVM running in WebAssembly) |
+| C / C++ | Clang + LLVM compiled to WebAssembly ([emception](https://github.com/jprendes/emception)); the program then runs in CodeForge's own WebAssembly runner |
+| Java | [CheerpJ](https://cheerpj.com) (a JVM running in WebAssembly) — needs `tools.jar` deployed, see Known limitations |
 
 **Judging**
 - **Time Limit Exceeded:** each test case has a wall-clock limit. A run that goes over
   is stopped by terminating its Web Worker.
-- **Memory Limit Exceeded:** exact for Python, measured from the growth of Pyodide's
-  WebAssembly heap. For JavaScript it's best-effort (Chromium's `performance.memory`).
+- **Memory Limit Exceeded:** exact for Python and C/C++, measured from the size of the
+  program's WebAssembly heap (it only grows, so its final size is the peak). Browsers
+  can't measure a JavaScript worker's memory, so for JavaScript only a real
+  out-of-memory crash counts, and the page says so.
+- **Fast input:** C/C++ programs get their whole input at once, so even 10⁵-number
+  inputs run in about 100 ms.
+- **Small page loads:** opening a problem downloads only its sample tests; the full test
+  set (it can be megabytes) is fetched once, when you first click Judge.
 - **Output check:** exact comparison that tolerates trailing whitespace and Windows line
   endings, plus a floating-point checker with relative/absolute tolerance.
 - **Cross-origin isolation:** COOP/COEP headers unlock `SharedArrayBuffer`, which the
@@ -175,9 +181,11 @@ See [`client/DEPLOY.md`](client/DEPLOY.md).
   user can read the expected outputs. Truly hidden test cases need the server judge.
 - **Verdicts are computed and saved by the browser,** so a user could fake results for
   their own account. They can't touch anyone else's data.
-- C, C++ and Java are **experimental**. Their first run downloads a 20–45 MB toolchain.
-- C/C++ input reading is slow for very large inputs: the WebAssembly runtime reads
-  input one byte at a time.
-- JavaScript memory limits are best-effort and only work in Chromium-based browsers.
+- C, C++ and Java are **experimental**. Their first run downloads a 20–45 MB toolchain
+  (skipped until you actually run code when the browser is in data-saver mode).
+- **Java is switched off until a Java 8 `tools.jar` is deployed** at the site root
+  (`client/public/tools.jar`). CheerpJ reads javac from there; without it the page
+  shows Java as unavailable. Java also needs Chrome or Edge on this site.
+- JavaScript memory isn't measured (no browser exposes a worker's heap size).
 - Supabase's free tier pauses a project after a week without activity; a scheduled
   GitHub Action pings it every three days.

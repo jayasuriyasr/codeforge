@@ -4,11 +4,21 @@
 
 export const DIFFICULTY_ORDER = { easy: 0, medium: 1, hard: 2 };
 
-/** DB row → the shape the judge and pages use (same as the old static JSON). */
+const byPosition = (a, b) => a.position - b.position;
+export const toTestCases = (rows) =>
+  [...rows].sort(byPosition).map((c) => ({ input: c.input, expectedOutput: c.expected_output, sample: c.is_sample }));
+
+/**
+ * DB row → the shape the judge and pages use (same as the old static JSON).
+ * A row can carry every test case (`test_cases(...)`), only a count
+ * (`test_cases(count)`), or the samples plus a count (`samples:test_cases(...)`
+ * + `test_cases(count)`) — the Solve page uses the last form and downloads the
+ * full set only when the user clicks Judge.
+ */
 export function toProblem(row) {
-  const cases = Array.isArray(row.test_cases) && row.test_cases[0]?.count === undefined
-    ? [...row.test_cases].sort((a, b) => a.position - b.position)
-    : null;
+  const counted = row.test_cases?.[0]?.count !== undefined;
+  const cases = Array.isArray(row.test_cases) && !counted ? toTestCases(row.test_cases) : null;
+  const samples = Array.isArray(row.samples) ? toTestCases(row.samples) : null;
   return {
     id: row.id,
     slug: row.slug,
@@ -24,8 +34,7 @@ export function toProblem(row) {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     caseCount: cases ? cases.length : (row.test_cases?.[0]?.count ?? 0),
-    testCases: cases
-      ? cases.map((c) => ({ input: c.input, expectedOutput: c.expected_output, sample: c.is_sample }))
-      : undefined,
+    testCases: cases || samples || undefined,
+    allCasesLoaded: Boolean(cases),
   };
 }

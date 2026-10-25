@@ -71,3 +71,18 @@ export async function isToolchainCached(lang) {
     return false;
   }
 }
+
+// ── Java compiler availability ─────────────────────────────────────────────
+// CheerpJ runs javac from tools.jar, which it reads through its /app/ mount —
+// i.e. from THIS site's root (/tools.jar). If the file isn't deployed, a host
+// answers with the SPA's index.html instead, so check the content type.
+let _javacProbe = null;
+export function javaCompilerHosted() {
+  _javacProbe ||= fetch('/tools.jar', { method: 'HEAD', cache: 'no-store' })
+    .then((r) => r.ok && !/text\/html/i.test(r.headers.get('content-type') || ''))
+    .catch(() => false);
+  return _javacProbe;
+}
+
+export const JAVA_NOT_HOSTED =
+  'Java isn\u2019t enabled on this site yet — its compiler file (tools.jar) isn\u2019t deployed. Please use another language for now.';

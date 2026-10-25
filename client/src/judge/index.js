@@ -23,7 +23,7 @@
 import { check } from './checker.js';
 import { runJavascript } from './runners/javascript.js';
 import { runPython, initPython } from './runners/python.js';
-import { prefetchToolchain, toolchainFor } from './loader.js';
+import { prefetchToolchain, toolchainFor, javaCompilerHosted, JAVA_NOT_HOSTED } from './loader.js';
 
 // C/C++ (emception) and Java (CheerpJ) pull in heavy glue code, so their
 // runners are code-split — the chunk only loads when someone actually picks
@@ -93,17 +93,29 @@ export async function checkToolchain(language, { deep = false } = {}) {
     res = (typeof SharedArrayBuffer !== 'undefined' && self.crossOriginIsolated)
       ? { ok: true, error: null }
       : { ok: false, error: 'this page is not cross-origin isolated — C/C++ needs COOP/COEP headers' };
+  } else if (typeof window === 'undefined' || typeof document === 'undefined') {
+    res = { ok: false, error: 'Java needs a full browser environment' };
+  } else if (self.crossOriginIsolated && !('credentialless' in HTMLIFrameElement.prototype)) {
+    res = { ok: false, error: 'on this site Java needs Chrome or Edge' };
   } else {
-    res = (typeof window !== 'undefined' && typeof document !== 'undefined')
-      ? { ok: true, error: null }
-      : { ok: false, error: 'Java needs a full browser environment' };
+    res = (await javaCompilerHosted()) ? { ok: true, error: null } : { ok: false, error: JAVA_NOT_HOSTED };
   }
   _avail.set(key, res);
   return res;
 }
 
-/** Warm a toolchain download when the user picks / hovers a language. */
+/** True when the browser asks us to save data (Data Saver on, or a 2G-class link). */
+export function saveDataMode() {
+  const c = typeof navigator !== 'undefined' ? navigator.connection : null;
+  return Boolean(c && (c.saveData || c.effectiveType === 'slow-2g' || c.effectiveType === '2g'));
+}
+
+/**
+ * Warm a toolchain download when the user picks a language. Skipped in
+ * save-data mode: the runtime is then fetched only when they actually run code.
+ */
 export function warmup(language) {
+  if (saveDataMode()) return;
   if (language === 'python') { initPython().catch(() => {}); return; }
   prefetchToolchain(language);
 }
@@ -227,5 +239,5 @@ export async function judgePractice({ language, code, problem, onProgress, runne
     }
   }
 
-  return { verdict, runtimeMs, memoryMB, compileError, cases: results, failedIndex, failedTestCase };
+  return { verdict, runtimeMs, memoryMB, compileError, cases: results, totalCases: cases.length, failedIndex, failedTestCase };
 }

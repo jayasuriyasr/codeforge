@@ -11,39 +11,43 @@ because all compute is on the client and all toolchain bandwidth is on free CDNs
 
 | language | mechanism | AC/WA | TLE | MLE | verified |
 |---|---|---|---|---|---|
-| **JavaScript** | Web Worker (native) | ✅ | ✅ wall-clock, `terminate()` | ⚠️ best-effort (`performance.memory`, Chromium only) | ✅ prod build, real browser |
+| **JavaScript** | Web Worker (native) | ✅ | ✅ wall-clock, `terminate()` | ⚠️ only an actual out-of-memory crash — a page can't measure a worker's JS heap (`performance.memory` doesn't exist in workers, even in Chrome); the Solve page says so | ✅ prod build, real browser |
 | **Python 3** | Pyodide (CPython → WASM), jsDelivr | ✅ | ✅ wall-clock | ✅ **exact** — WASM heap delta vs post-warmup baseline | ✅ prod build, real browser |
-| **C / C++** | emception (Clang + lld → WASM), jsDelivr | ✅ | ✅ wall-clock, toolchain worker disposed | ⚠️ best-effort — `--max-memory` link cap + `bad_alloc`/OOM on stderr | ✅ prod build (compile+link+run+stdin+CE all confirmed) |
-| **Java** | CheerpJ 4.3 (JVM → WASM), Leaning Tech CDN | ✅* | ✅* in-helper watchdog `Runtime.halt(124)` | ⚠️* `OutOfMemoryError` on stderr | ⛔ **not yet run in a real browser** — CheerpJ won't boot in the dev sandbox |
+| **C / C++** | emception compiles (Clang + lld → WASM); our own runner executes (`runners/wasm-exec.js`) | ✅ | ✅ wall-clock in a run worker; only that worker is killed | ✅ **exact** — final wasm heap size (it only grows) + refused growth past the cap | ✅ prod build, real browser: 10⁵-number inputs in ~100 ms |
+| **Java** | CheerpJ 4.3 (JVM → WASM), Leaning Tech CDN; javac from `/tools.jar` on this site | ✅* | ✅* in-helper watchdog `Runtime.halt(124)` | ⚠️* `OutOfMemoryError` on stderr | ⚠️ run path ✅ in real Edge; **off until `tools.jar` is deployed** |
 
-`*` Java runner is written to the pattern proven by Leaning Technologies'
-own JavaFiddle (loader 4.3, `com.sun.tools.javac.Main.compile` with captured
-diagnostics, stream redirection via an embedded `CFJudge` helper, `cjFileBlob`
-read-back). It compiles cleanly and is code-split, but the end-to-end run has
-**only** been exercised in a browser that can't finish booting a WASM JVM. Run
-the **§4 checklist in `VERIFY.md`** in real Chrome before relying on Java.
+`*` Java status, verified in real Edge (headless, over the DevTools protocol):
+
+- CheerpJ boots on this cross-origin-isolated site only because the runner marks
+  CheerpJ's iframe `credentialless` (Chrome/Edge 110+). Without that the frame is
+  blocked and Java hangs; Firefox/Safari get a clear "needs Chrome or Edge".
+- The CFJudge helper loads the compiled class with its own class loader (the
+  JVM's class path is fixed at boot, and `URLClassLoader` can't read CheerpJ's
+  file system). A precompiled Two Sum solution runs and prints the right answer.
+- **javac is the missing piece.** It lives in a Java 8 `tools.jar`, which CheerpJ
+  reads through `/app/` = this site's root, so it must be deployed as
+  `client/public/tools.jar`. Until then the Solve page shows Java as unavailable
+  (no hang); once the file is there Java switches on by itself.
 
 ## Cross-origin isolation
 
 The app is served with `COOP: same-origin` + `COEP: require-corp`
-(`public/_headers` + re-applied by `public/sw.js`). This is **required** for
-C/C++ (emception needs `SharedArrayBuffer` to deliver stdin). It does not break
-Python / Monaco / CheerpJ — every CDN we use sends
-`Cross-Origin-Resource-Policy: cross-origin`. GitHub Pages can't set these
-headers, so C/C++ is disabled there; the other four languages still work.
+(`vercel.json` / `public/_headers`, re-applied by `public/sw.js`). emception
+needs `SharedArrayBuffer`. Python and Monaco load fine — their CDN sends
+`Cross-Origin-Resource-Policy: cross-origin`. CheerpJ's runtime iframe does not,
+so it is embedded as a `credentialless` iframe (Chrome/Edge only).
 
 ## Known limitations (by design / by current tech)
 
-1. **C/C++ stdin is one byte per syscall** (emception's `wasi-run`). A problem
-   with 10⁵+ input tokens can TLE in C/C++ *with a correct algorithm*. Keep
-   C/C++-tagged problems' inputs modest. Every in-browser C/C++ toolchain has
-   this today.
+1. ~~C/C++ stdin is one byte per syscall~~ — fixed: `wasm-exec.js` runs the linked
+   binary with bulk stdin (emception's `wasi-run` is only a fallback now).
 2. **C/C++ first use downloads ~30–50 MB** of LLVM/clang (Brotli-compressed) and
    takes 15–30 s to warm on a fast machine. One-time per browser, then
    IndexedDB + service-worker cached. Compile is memoised within a submission, so
    only case 1 pays the compile cost.
-3. **JS MLE is best-effort.** `performance.memory` is Chromium-only; elsewhere an
-   over-limit JS program surfaces as RE, not MLE. Python is the only exact one.
+3. **JS memory isn't measured.** No browser exposes a worker's heap size, so a
+   JavaScript program that merely exceeds the limit is not flagged; only a real
+   out-of-memory crash is MLE. Python and C/C++ are exact.
 4. **Java may block the main thread** while a submission runs (CheerpJ on the
    main thread). Acceptable for short practice runs; the watchdog covers infinite
    loops. Moving CheerpJ to a Web Worker is the follow-up if this bites.
@@ -64,9 +68,10 @@ client/
         javascript.js     Blob Worker
         python.js         Pyodide Worker (real MLE, byte-interface stdin)
         cpp.js            emception 4.x — compile once, run each case
+        wasm-exec.js      runs the compiled wasm: bulk stdin, real memory, clean TLE
         java.js           CheerpJ 4.3 + embedded CFJudge helper
-    lib/profile.js        localStorage profile (the only "account")
-    lib/problems.js       fetches /problems/*.json
+    lib/profile.js        localStorage profile (guests)
+    lib/problems.js       problems from Supabase (samples first, full tests on Judge)
     pages/                Catalog, Solve, Me
   content/problems/*.json  source problems  →  build  →  public/problems/*.json
   scripts/

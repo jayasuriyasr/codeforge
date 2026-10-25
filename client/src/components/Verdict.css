@@ -33,6 +33,8 @@
 .v-neu { color: var(--cf-text-muted);          background: var(--cf-bg-subtle); }
 
 .v-cases { display: flex; flex-wrap: wrap; gap: 4px; }
+.v-cases-sum { display: flex; justify-content: space-between; align-items: center; gap: var(--cf-space-3); flex-wrap: wrap; font-family: var(--cf-font-code); font-size: var(--cf-text-xs, .78rem); color: var(--cf-text-secondary); }
+.v-cases-sum button { background: none; border: 1px solid var(--cf-border-base); color: var(--cf-text-secondary); font-size: var(--cf-text-2xs, .7rem); padding: 2px 8px; border-radius: var(--cf-radius-sm); cursor: pointer; }
 .v-case { font-family: var(--cf-font-code); font-size: var(--cf-text-2xs, .68rem); padding: 2px 6px; border-radius: var(--cf-radius-sm); border: 1px solid currentColor; }
 
 .v-compile pre, .v-failed pre {

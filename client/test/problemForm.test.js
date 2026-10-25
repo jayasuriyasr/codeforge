@@ -68,3 +68,18 @@ test('database rows map to the judge shape and back into the form', () => {
   assert.equal(toProblem(listRow).caseCount, 9);
   assert.equal(toProblem(listRow).testCases, undefined);
 });
+
+test('the Solve page shape: samples now, full test set later', () => {
+  const row = {
+    id: 9, slug: 's', title: 'S', difficulty: 'easy', tags: [], statement: 's',
+    time_limit_sec: 2, memory_limit_mb: 128, checker_type: 'exact', published: true, created_by: null,
+    updated_at: '2026-10-21T00:00:00Z',
+    samples: [{ position: 3, input: 'b', expected_output: 'B', is_sample: true }, { position: 0, input: 'a', expected_output: 'A', is_sample: true }],
+    test_cases: [{ count: 37 }],
+  };
+  const p = toProblem(row);
+  assert.equal(p.caseCount, 37);                       // the count shown on the page is the full set
+  assert.equal(p.allCasesLoaded, false);                // judge must download the rest first
+  assert.deepEqual(p.testCases.map((c) => c.input), ['a', 'b']);
+  assert.equal(toProblem({ ...row, samples: undefined, test_cases: [{ position: 0, input: 'x', expected_output: 'y', is_sample: false }] }).allCasesLoaded, true);
+});

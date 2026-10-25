@@ -1,14 +1,51 @@
+import { useState } from 'react';
 import './Verdict.css';
+
+// Above this many cases the per-case chips collapse into a summary line plus
+// the failing case, with a button to show them all.
+const MAX_CHIPS = 60;
 
 const CLASS = { AC: 'v-ac', WA: 'v-wa', TLE: 'v-tle', MLE: 'v-mle', RE: 'v-re', CE: 'v-ce' };
 const LABEL = {
   AC: 'Accepted', WA: 'Wrong Answer', TLE: 'Time Limit Exceeded',
   MLE: 'Memory Limit Exceeded', RE: 'Runtime Error', CE: 'Compile Error',
-  UNAVAILABLE: 'Toolchain unavailable',
+  UNAVAILABLE: 'Toolchain unavailable', NETWORK: 'Could not download the test cases',
 };
 
 export function Chip({ v, children }) {
   return <span className={`v-chip ${CLASS[v] || 'v-neu'}`}>{children || v}</span>;
+}
+
+function CaseList({ cases, total }) {
+  const [showAll, setShowAll] = useState(false);
+  const many = cases.length > MAX_CHIPS;
+  const shown = many && !showAll ? cases.filter((c) => c.status !== 'AC') : cases;
+  const passed = cases.filter((c) => c.status === 'AC').length;
+  const slowest = Math.max(...cases.map((c) => c.wallMs || 0));
+  return (
+    <>
+      {many && (
+        <div className="v-cases-sum">
+          <span>
+            {passed === cases.length ? `All ${total} test cases passed` : `Passed ${passed} of ${total} · stopped at test ${cases.length}`}
+            {` · slowest ${slowest} ms`}
+          </span>
+          <button onClick={() => setShowAll((s) => !s)}>{showAll ? 'Hide cases' : `Show all ${cases.length}`}</button>
+        </div>
+      )}
+      {shown.length > 0 && (
+        <div className="v-cases">
+          {shown.map((c) => (
+            <span key={c.index} className={`v-case ${CLASS[c.status] || 'v-neu'}`}>
+              #{c.index + 1} {c.status}
+              {c.wallMs != null ? ` · ${c.wallMs}ms` : ''}
+              {c.memMb ? ` · ${c.memMb.toFixed(0)}MB` : ''}
+            </span>
+          ))}
+        </div>
+      )}
+    </>
+  );
 }
 
 export default function Verdict({ result, running, progress, stage, onUseCase }) {
@@ -36,7 +73,7 @@ export default function Verdict({ result, running, progress, stage, onUseCase })
       <div className="v-head">
         <Chip v={verdict}>{verdict}</Chip>
         <span className="v-sub">{LABEL[verdict] || verdict}</span>
-        {runtimeMs != null && verdict !== 'CE' && verdict !== 'UNAVAILABLE' && (
+        {runtimeMs != null && verdict !== 'CE' && verdict !== 'UNAVAILABLE' && verdict !== 'NETWORK' && (
           <span className="v-stat">{runtimeMs} ms</span>
         )}
         {memoryMB ? <span className="v-stat">{memoryMB.toFixed(1)} MB</span> : null}
@@ -50,6 +87,10 @@ export default function Verdict({ result, running, progress, stage, onUseCase })
         </p>
       )}
 
+      {verdict === 'NETWORK' && (
+        <p className="v-msg">{error} Check your connection and click Judge again.</p>
+      )}
+
       {compileError && (
         <div className="v-compile">
           <div className="v-compile-h">Compiler output</div>
@@ -57,17 +98,7 @@ export default function Verdict({ result, running, progress, stage, onUseCase })
         </div>
       )}
 
-      {cases.length > 0 && (
-        <div className="v-cases">
-          {cases.map((c) => (
-            <span key={c.index} className={`v-case ${CLASS[c.status] || 'v-neu'}`}>
-              #{c.index + 1} {c.status}
-              {c.wallMs != null ? ` · ${c.wallMs}ms` : ''}
-              {c.memMb ? ` · ${c.memMb.toFixed(0)}MB` : ''}
-            </span>
-          ))}
-        </div>
-      )}
+      {cases.length > 0 && <CaseList cases={cases} total={result.totalCases || cases.length} />}
 
       {failedTestCase && verdict !== 'CE' && (
         <div className="v-failed">

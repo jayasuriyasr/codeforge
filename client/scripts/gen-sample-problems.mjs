@@ -89,21 +89,67 @@ The index, or \`-1\`.
   ],
 });
 
-// ── 4. Climbing Stairs ────────────────────────────────────────────────────
+// ── 4. Climbing Stairs (1000 tests) ───────────────────────────────────────
+// Every n up to 45, the points where the exact answer outgrows 10^9+7 and
+// 32/53/64-bit numbers, round and power-of-two sizes, then random n up to 10^5.
+// The random part uses a fixed seed, so re-running writes the same file.
+const STAIRS_MAX = 100000;
+const STAIRS_MOD = 1000000007;
+const ways = [1, 1];                                   // ways[n] mod 10^9+7
+for (let n = 2; n <= STAIRS_MAX; n++) ways[n] = (ways[n - 1] + ways[n - 2]) % STAIRS_MOD;
+const stairs = (n, sample = false, label) => tc(String(n), String(ways[n]), sample, label);
+
+function mulberry32(seed) {
+  return () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const STAIRS_LABELS = {
+  44: 'first answer above 10^9+7 — needs the modulo',
+  46: 'exact answer overflows a 32-bit int',
+  78: 'exact answer passes 2^53 (JavaScript number precision)',
+  92: 'exact answer overflows a signed 64-bit int',
+  93: 'exact answer overflows an unsigned 64-bit int',
+  100000: 'largest n',
+};
+const STAIRS_FIXED = [46, 47, 50, 64, 77, 78, 79, 90, 91, 92, 93, 94, 100, 127, 128, 255, 256, 500,
+  999, 1000, 1001, 1023, 1024, 4096, 9999, 10000, 10001, 32767, 32768, 50000, 65535, 65536, 65537,
+  99998, 99999, 100000];
+const stairsCases = [stairs(2, true), stairs(3, true), stairs(1, true)];
+for (let n = 4; n <= 45; n++) stairsCases.push(stairs(n, false, STAIRS_LABELS[n]));
+for (const n of STAIRS_FIXED) stairsCases.push(stairs(n, false, STAIRS_LABELS[n]));
+const usedN = new Set(stairsCases.map((c) => Number(c.input)));
+const rand = mulberry32(20261025);
+while (stairsCases.length < 1000) {
+  const n = rand() < 0.2 ? 46 + Math.floor(rand() * 955) : 1001 + Math.floor(rand() * (STAIRS_MAX - 1001));
+  if (usedN.has(n)) continue;
+  usedN.add(n);
+  stairsCases.push(stairs(n));
+}
+
 problems.push({
   slug: 'climbing-stairs', title: 'Climbing Stairs', difficulty: 'easy', tags: ['dp', 'math'],
   timeLimitSec: 2, memoryLimitMB: 64,
-  statement: `You climb a staircase of \`n\` steps, 1 or 2 at a time. How many distinct ways?
+  statement: `You climb a staircase of \`n\` steps, taking 1 or 2 steps at a time. How many distinct ways are there to reach the top?
+
+The answer grows very fast, so print it **modulo 1 000 000 007** (\`10^9 + 7\`).
 
 ### Input
-A single integer \`n\` (\`1 <= n <= 45\`).
+A single integer \`n\` (\`1 <= n <= 10^5\`).
 
 ### Output
-The number of ways.`,
-  testCases: [
-    tc('2', '2', true), tc('3', '3', true), tc('1', '1', true),
-    tc('4', '5'), tc('10', '89'), tc('45', '1836311903', false, 'fits in 32-bit'),
-  ],
+The number of ways, modulo \`10^9 + 7\`.
+
+### Notes
+- \`n = 3\` has 3 ways: 1+1+1, 1+2 and 2+1.
+- The exact answer passes \`10^9 + 7\` at \`n = 44\`, overflows a 64-bit integer at \`n = 92\` and has about 20 900 digits at \`n = 10^5\`, so keep the numbers small by taking the modulo at every step.
+- Plain recursion is exponential and runs out of time. Memoized recursion goes \`n\` calls deep, which can overflow the stack for large \`n\`; a loop is the safe choice.
+- There are 1000 test cases: every \`n\` up to 45, the overflow boundaries above, and random \`n\` up to \`10^5\`.`,
+  testCases: stairsCases,
 });
 
 // ── 5. Maximum Subarray ───────────────────────────────────────────────────

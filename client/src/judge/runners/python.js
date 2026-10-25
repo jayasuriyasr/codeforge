@@ -74,7 +74,16 @@ self.onmessage = async (e) => {
       py.setStdout({ batched: (s) => { out += s + '\\n'; } });
       py.setStderr({ batched: () => {} });
 
-      await py.runPythonAsync(code, { globals: py.toPy({}) });
+      // The run's variables live in this dict. Empty and release it afterwards:
+      // a PyProxy keeps the whole namespace (e.g. a 10^5-element dp list) alive
+      // until JS garbage collection, so the heap reading crept up case by case.
+      const globals = py.toPy({});
+      try {
+        await py.runPythonAsync(code, { globals });
+      } finally {
+        try { globals.clear(); } catch (_) {}
+        globals.destroy();
+      }
       self.postMessage({ type: 'result', id, ok: true, stdout: out, heap: heapBytes(), baseline: self.__baseline });
     } catch (err) {
       const msg = String(err && err.message || err);
