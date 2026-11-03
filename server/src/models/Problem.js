@@ -82,7 +82,7 @@ const problemSchema = new mongoose.Schema(
     // Drives which checker is used at verdict time (§7 of arch doc)
     checkerType: {
       type:    String,
-      enum:    ['exact', 'float', 'special'],
+      enum:    ['exact', 'float', 'tokens', 'strict', 'check07', 'check10', 'special'],
       default: 'exact',
     },
 

@@ -8,7 +8,7 @@ export const LIMITS = {
   title: 120,
   statement: 20000,
   maxCases: 1000,
-  caseChars: 1000000,
+  caseChars: 4000000,
   timeSec: [0.5, 10],
   memoryMB: [16, 512],
 };

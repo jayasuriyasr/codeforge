@@ -67,8 +67,10 @@ flowchart LR
   inputs run in about 100 ms.
 - **Small page loads:** opening a problem downloads only its sample tests; the full test
   set (it can be megabytes) is fetched once, when you first click Judge.
-- **Output check:** exact comparison that tolerates trailing whitespace and Windows line
-  endings, plus a floating-point checker with relative/absolute tolerance.
+- **Output check:** line-by-line (trailing whitespace and Windows line endings ignored),
+  token-by-token, strict character-for-character, a floating-point checker with
+  relative/absolute tolerance, and problem-specific checkers that also read the input
+  (e.g. "any valid pair" or "picks must be uniformly random").
 - **Cross-origin isolation:** COOP/COEP headers unlock `SharedArrayBuffer`, which the
   C/C++ runtime needs to feed input to a compiled program.
 

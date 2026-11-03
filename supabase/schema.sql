@@ -51,7 +51,8 @@ create table if not exists public.problems (
   statement       text not null check (char_length(statement) between 1 and 20000),
   time_limit_sec  numeric(3, 1) not null default 2 check (time_limit_sec between 0.5 and 10),
   memory_limit_mb int not null default 128 check (memory_limit_mb between 16 and 512),
-  checker_type    text not null default 'exact' check (checker_type in ('exact', 'float')),
+  checker_type    text not null default 'exact'
+                    check (checker_type in ('exact', 'float', 'tokens', 'strict', 'check07', 'check10')),
   published       boolean not null default false,
   -- null = built-in problem (seeded); nobody can edit or delete those.
   created_by      uuid default auth.uid() references public.profiles (id) on delete set null,
@@ -65,11 +66,22 @@ create table if not exists public.test_cases (
   id              bigint generated always as identity primary key,
   problem_id      bigint not null references public.problems (id) on delete cascade,
   position        int not null check (position >= 0),
-  input           text not null check (char_length(input) <= 1000000),
-  expected_output text not null check (char_length(expected_output) <= 1000000),
+  input           text not null check (char_length(input) <= 4000000),
+  expected_output text not null check (char_length(expected_output) <= 4000000),
   is_sample       boolean not null default false,
   unique (problem_id, position)
 );
+
+-- Databases created before the limits above changed keep their old checks
+-- (create table if not exists leaves an existing table alone), so replace them.
+alter table public.problems drop constraint if exists problems_checker_type_check;
+alter table public.problems add constraint problems_checker_type_check
+  check (checker_type in ('exact', 'float', 'tokens', 'strict', 'check07', 'check10'));
+alter table public.test_cases drop constraint if exists test_cases_input_check;
+alter table public.test_cases add constraint test_cases_input_check check (char_length(input) <= 4000000);
+alter table public.test_cases drop constraint if exists test_cases_expected_output_check;
+alter table public.test_cases add constraint test_cases_expected_output_check
+  check (char_length(expected_output) <= 4000000);
 
 -- ── submissions ─────────────────────────────────────────────────────────────
 create table if not exists public.submissions (

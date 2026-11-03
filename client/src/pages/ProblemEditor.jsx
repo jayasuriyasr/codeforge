@@ -150,7 +150,11 @@ export default function ProblemEditor() {
               <span>Output check</span>
               <select value={form.checkerType} onChange={(e) => set({ checkerType: e.target.value })}>
                 <option value="exact">Exact match (ignores trailing spaces)</option>
+                <option value="tokens">Tokens (spacing and line breaks ignored)</option>
+                <option value="strict">Strict (every space counts)</option>
                 <option value="float">Numbers with tolerance (1e-6)</option>
+                <option value="check07">Special: random index of the most frequent value</option>
+                <option value="check10">Special: pair sum closest to x</option>
               </select>
             </label>
           </div>

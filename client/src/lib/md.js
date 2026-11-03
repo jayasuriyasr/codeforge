@@ -1,13 +1,14 @@
 // lib/md.js — a deliberately tiny Markdown renderer.
 // Covers what the problem statements use: #/##/### headings, `inline code`,
-// **bold**, *italic*, - bullet lists, fenced ``` code blocks, paragraphs.
-// Not a general Markdown engine — no tables, no links (statements don't need them).
+// **bold**, *italic*, [links](https://…), - bullet lists, fenced ``` code
+// blocks, paragraphs. Not a general Markdown engine — no tables.
 
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 function inline(s) {
   return esc(s)
     .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
 }

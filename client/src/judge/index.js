@@ -150,7 +150,7 @@ export async function runSample({ language, code, input, expectedOutput, checker
   }
   if (r.status === 'CE') return { status: 'CE', actualOutput: r.compileError || 'compilation failed', wallMs: r.wallMs };
   if (r.status !== 'OK') return { status: r.status, actualOutput: r.error || `(${r.status})`, wallMs: r.wallMs, memMb: r.memMb };
-  const ok = check(checkerType, r.stdout, expectedOutput ?? '');
+  const ok = check(checkerType, r.stdout, expectedOutput ?? '', input ?? '');
   return { status: ok ? 'AC' : 'WA', actualOutput: String(r.stdout).trimEnd(), wallMs: r.wallMs, memMb: r.memMb };
 }
 
@@ -220,7 +220,7 @@ export async function judgePractice({ language, code, problem, onProgress, runne
     memoryMB = Math.max(memoryMB, r.memMb || 0);
 
     const caseVerdict = r.status === 'OK'
-      ? (check(checkerType, r.stdout, tc.expectedOutput ?? '') ? 'AC' : 'WA')
+      ? (check(checkerType, r.stdout, tc.expectedOutput ?? '', tc.input ?? '') ? 'AC' : 'WA')
       : (VERDICT_FROM_STATUS[r.status] || 'RE');
 
     results.push({ index: i, status: caseVerdict, wallMs: r.wallMs, memMb: r.memMb });

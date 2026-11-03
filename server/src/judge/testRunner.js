@@ -7,11 +7,15 @@
 //   checkerType:
 //     'exact'   (default) — line-trimmed, trailing-newline-insensitive compare
 //     'float'             — token-wise compare with absolute/relative epsilon
+//     'tokens'            — token-wise compare, spacing and line breaks free
+//     'strict'            — character for character (CRLF / final newline forgiven)
+//     'check07', 'check10' — problem-specific checkers that also read the input
 //     'special'           — external checker binary (Phase 5; currently a stub
 //                            that surfaces as INFRA_ERROR rather than a silent pass)
 
 const { defaultChecker }                                    = require('./checkers/exact');
 const { floatChecker }                                      = require('./checkers/float');
+const { tokensChecker, strictChecker, check07, check10 }    = require('./checkers/extra');
 const { specialChecker, SpecialCheckerNotImplementedError } = require('./checkers/special');
 
 /**
@@ -26,6 +30,14 @@ function checkOne(checkerType, actual, expected, { input, problem, opts } = {}) 
       const r = floatChecker(actual, expected, opts || {});
       return { accepted: r.accepted, message: r.message };
     }
+    case 'tokens':
+      return { accepted: tokensChecker(actual, expected) };
+    case 'strict':
+      return { accepted: strictChecker(actual, expected) };
+    case 'check07':
+      return { accepted: check07(actual, expected, input || '') };
+    case 'check10':
+      return { accepted: check10(actual, expected, input || '') };
     case 'special': {
       const r = specialChecker(input, actual, expected, problem);
       return { accepted: r.accepted, message: r.message };

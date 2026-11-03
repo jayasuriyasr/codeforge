@@ -79,3 +79,31 @@ test('runChecks: special checker type is a visible gap (INFRA_ERROR), not silent
   );
   assert.equal(res.verdict, 'INFRA_ERROR');
 });
+
+// ── tokens / strict / problem-specific (same cases as client/test/checker.test.js) ──
+const { checkOne } = require('../../src/judge/testRunner');
+
+test('tokens: spacing and line breaks ignored, values and count are not', () => {
+  assert.equal(checkOne('tokens', '1   2\n3\n', '1 2 3').accepted, true);
+  assert.equal(checkOne('tokens', '1 2', '1 2 3').accepted, false);
+});
+
+test('strict: every space counts, only CRLF and one final newline forgiven', () => {
+  assert.equal(checkOne('strict', '  that  \r\n', '  that  \n').accepted, true);
+  assert.equal(checkOne('strict', '  that', '  that  ').accepted, false);
+});
+
+test('check07: every pick a candidate, picks spread evenly', () => {
+  const input = '4 6\n7 1 7 7';
+  assert.equal(checkOne('check07', '0 2 3 0 2 3', 'CANDIDATES 0 2 3', { input }).accepted, true);
+  assert.equal(checkOne('check07', '0 2 1 0 2 3', 'CANDIDATES 0 2 3', { input }).accepted, false);
+  const many = '3 3000\n5 5 5';
+  assert.equal(checkOne('check07', Array(3000).fill(0).join(' '), 'CANDIDATES 0 1 2', { input: many }).accepted, false);
+});
+
+test('check10: any pair at two different indices with the best |a + b - x|', () => {
+  const input = '4 10\n1 4 6 9';
+  assert.equal(checkOne('check10', '6 4', '1 9', { input }).accepted, true);
+  assert.equal(checkOne('check10', '6 6', '1 9', { input }).accepted, false);
+  assert.equal(checkOne('check10', '1 4', '1 9', { input }).accepted, false);
+});
