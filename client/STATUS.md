@@ -12,7 +12,7 @@ because all compute is on the client and all toolchain bandwidth is on free CDNs
 | language | mechanism | AC/WA | TLE | MLE | verified |
 |---|---|---|---|---|---|
 | **JavaScript** | Web Worker (native) | ✅ | ✅ wall-clock, `terminate()` | ⚠️ only an actual out-of-memory crash — a page can't measure a worker's JS heap (`performance.memory` doesn't exist in workers, even in Chrome); the Solve page says so | ✅ prod build, real browser |
-| **Python 3** | Pyodide (CPython → WASM), jsDelivr | ✅ | ✅ wall-clock | ✅ **exact** — WASM heap delta vs post-warmup baseline | ✅ prod build, real browser |
+| **Python 3** | Pyodide (CPython → WASM), jsDelivr | ✅ | ✅ wall-clock | ✅ **real** — WASM heap delta vs post-warmup baseline + refused growth past the cap (within Pyodide's 5 % growth step) | ✅ prod build, real browser |
 | **C / C++** | emception compiles (Clang + lld → WASM); our own runner executes (`runners/wasm-exec.js`) | ✅ | ✅ wall-clock in a run worker; only that worker is killed | ✅ **exact** — final wasm heap size (it only grows) + refused growth past the cap | ✅ prod build, real browser: 10⁵-number inputs in ~100 ms |
 | **Java** | CheerpJ 4.3 (JVM → WASM), Leaning Tech CDN; javac from `/tools.jar` on this site | ✅* | ✅* in-helper watchdog `Runtime.halt(124)` | ⚠️* `OutOfMemoryError` on stderr | ⚠️ run path ✅ in real Edge; **off until `tools.jar` is deployed** |
 

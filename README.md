@@ -59,10 +59,12 @@ flowchart LR
 **Judging**
 - **Time Limit Exceeded:** each test case has a wall-clock limit. A run that goes over
   is stopped by terminating its Web Worker.
-- **Memory Limit Exceeded:** exact for Python and C/C++, measured from the size of the
-  program's WebAssembly heap (it only grows, so its final size is the peak). Browsers
-  can't measure a JavaScript worker's memory, so for JavaScript only a real
-  out-of-memory crash counts, and the page says so.
+- **Memory Limit Exceeded:** real for Python and C/C++, measured from the size of the
+  program's WebAssembly heap (it only grows, so its final size is the peak). Growth
+  past the limit is refused, so a program that keeps allocating stops with MLE at the
+  limit instead of running into the time limit. Browsers can't measure a JavaScript
+  worker's memory, so for JavaScript only a real out-of-memory crash counts, and the
+  page says so.
 - **Fast input:** C/C++ programs get their whole input at once, so even 10⁵-number
   inputs run in about 100 ms.
 - **Small page loads:** opening a problem downloads only its sample tests; the full test

@@ -6,12 +6,17 @@
 // MLE  — REAL: Pyodide's whole heap is one WebAssembly.Memory that only grows,
 //        so `wasmMemory.buffer.byteLength − (size right after init)` is the peak
 //        bytes the solution forced to be allocated. If that exceeds the limit,
-//        or Python raises MemoryError (grow() refused), the verdict is MLE.
+//        the verdict is MLE.
+//        While a solution runs, the worker refuses heap growth past ~the limit
+//        (see `capBytes`), so a runaway program gets MemoryError at the limit
+//        instead of running on to the TLE. A run whose last growth request was
+//        refused is MLE even if the program caught the MemoryError.
 //        Because the heap never shrinks, a run after a memory-heavy one would
 //        inherit its size. So an over-limit reading only counts if the run
 //        started from a clean heap; otherwise Pyodide is restarted and the test
 //        run again. A batch that leaves the heap grown also gets a fresh
-//        Pyodide once the page is idle, so the next batch reads clean numbers.
+//        Pyodide once the page is idle, so the next batch reads clean numbers;
+//        after an MLE it is replaced at once.
 //
 // Asset source (first that loads wins): VITE_PYODIDE_URL, /pyodide/, then the CDN.
 
@@ -21,6 +26,23 @@ const CONFIGURED = (typeof import.meta !== 'undefined' && import.meta.env && imp
 const WORKER_SRC = `
 const MEM_ERR_RE = /MemoryError|out of memory|Cannot enlarge memory|memory access out of bounds|RangeError|Aborted/i;
 let ready = null;
+
+// Memory cap. Pyodide grows its heap with WebAssembly.Memory#grow, asking for
+// +20 %, then +10 %, then +5 % of the current size until one succeeds; if all
+// are refused, Python raises MemoryError. During a run, growth past capBytes is
+// refused. lastRefused tracks only the most recent request: a refused +20 %
+// followed by an accepted +10 % is not running out of memory.
+const realGrow = WebAssembly.Memory.prototype.grow;
+let capBytes = Infinity;
+let lastRefused = false;
+WebAssembly.Memory.prototype.grow = function (pages) {
+  if (this.buffer.byteLength + pages * 65536 > capBytes) {
+    lastRefused = true;
+    throw new RangeError('memory limit');
+  }
+  lastRefused = false;
+  return realGrow.call(this, pages);
+};
 
 function heapBytes() {
   const m = self.__py && self.__py._module;
@@ -56,9 +78,10 @@ self.onmessage = async (e) => {
   }
 
   if (type === 'run') {
-    const { code, input, id } = e.data;
+    const { code, input, id, capMb } = e.data;
     const py = self.__py;
     let before = 0;
+    let capHit = false;
     try {
       try { py.runPython('import gc; gc.collect()'); } catch (_) {}   // release last run's objects
 
@@ -86,18 +109,24 @@ self.onmessage = async (e) => {
       const globals = py.toPy({});
       before = heapBytes();
       try {
+        // 5 % above the limit: Pyodide's smallest step is +5 % of the heap, so a
+        // program that fits must not be refused because of that rounding.
+        capBytes = Number.isFinite(capMb) ? 1.05 * (self.__baseline + capMb * 1048576) : Infinity;
+        lastRefused = false;
         await py.runPythonAsync(code, { globals });
       } finally {
+        capHit = lastRefused;
+        capBytes = Infinity;
         try { globals.clear(); } catch (_) {}
         globals.destroy();
       }
-      self.postMessage({ type: 'result', id, ok: true, stdout: out, before, heap: heapBytes(), baseline: self.__baseline });
+      self.postMessage({ type: 'result', id, ok: true, stdout: out, before, heap: heapBytes(), baseline: self.__baseline, capHit });
     } catch (err) {
       const msg = String(err && err.message || err);
       self.postMessage({
         type: 'result', id, ok: false, error: msg,
         oom: MEM_ERR_RE.test(msg),
-        before, heap: heapBytes(), baseline: self.__baseline,
+        before, heap: heapBytes(), baseline: self.__baseline, capHit,
       });
     }
   }
@@ -167,7 +196,7 @@ export async function runPython(code, input, timeLimitMs, memLimitMb = Infinity,
       const wallMs = Math.round(performance.now() - start);
       const baseline = e.data.baseline || 0;
       const memMb = Math.max(0, ((e.data.heap || 0) - baseline) / MB);
-      const overMem = e.data.oom || memMb > memLimitMb + SLACK_MB;
+      const overMem = e.data.oom || e.data.capHit || memMb > memLimitMb + SLACK_MB;
       const startedClean = ((e.data.before || 0) - baseline) / MB <= CLEAN_MB;
       const dirtyAfter = memMb > CLEAN_MB;
 
@@ -177,16 +206,22 @@ export async function runPython(code, input, timeLimitMs, memLimitMb = Infinity,
         restartPython();
         return resolve(runPython(code, input, timeLimitMs, memLimitMb, true));
       }
+      if (overMem) {
+        // A refused growth can leave Pyodide unusable ("Aborted"), and the heap
+        // is large either way: start the next run on a fresh one.
+        restartPython();
+        initPython().catch(() => {});
+        return resolve({ status: 'MLE', wallMs, memMb, stdout: e.data.stdout || '' });
+      }
       if (dirtyAfter) {
         recycleTimer = setTimeout(() => { restartPython(); initPython().catch(() => {}); }, RECYCLE_IDLE_MS);
       }
 
-      if (overMem) return resolve({ status: 'MLE', wallMs, memMb, stdout: e.data.stdout || '' });
       if (!e.data.ok) return resolve({ status: 'RE', wallMs, memMb, stdout: '', error: e.data.error });
       if (wallMs > timeLimitMs) return resolve({ status: 'TLE', wallMs, memMb, stdout: e.data.stdout });
       resolve({ status: 'OK', wallMs, memMb, stdout: e.data.stdout });
     };
     w.addEventListener('message', onMsg);
-    w.postMessage({ type: 'run', code, input: String(input ?? ''), id });
+    w.postMessage({ type: 'run', code, input: String(input ?? ''), id, capMb: memLimitMb + SLACK_MB });
   });
 }
