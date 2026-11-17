@@ -12,11 +12,22 @@ import { useAuth } from '../hooks/useAuth.js';
 import { useSolved, markSolvedId } from '../hooks/useSolved.js';
 import {
   judgePractice, runSample, runCustom, warmup, checkToolchain, toolchainInfo,
+  timeLimitSecFor, pythonDeviceFactor,
 } from '../judge/index.js';
 import './Solve.css';
 
 const EXPERIMENTAL = new Set(['c', 'cpp', 'java']);
 const LANG_LABEL = Object.fromEntries(LANGUAGES.map((l) => [l.id, l.label]));
+// Why this language's time limit is what it is (hover text on the limit).
+function limitNote(problem, language) {
+  if (language !== 'python') return 'Time limit';
+  const parts = [];
+  if (timeLimitSecFor('python', problem) > problem.timeLimitSec) parts.push(`Python gets ${timeLimitSecFor('python', problem)}s here (calibrated: Python in the browser is slower than native CPython; other languages ${problem.timeLimitSec}s)`);
+  const f = pythonDeviceFactor();
+  if (f > 1.05) parts.push(`×${f.toFixed(1)} on this device: it ran the speed check slower than the reference machine`);
+  return parts.join(' · ') || 'Time limit';
+}
+
 const CUSTOM_STATUS = { OK: 'Ran successfully', TLE: 'Time Limit Exceeded', MLE: 'Memory Limit Exceeded', RE: 'Runtime Error', CE: 'Compile Error', UNAVAILABLE: 'Toolchain unavailable', UNSUPPORTED: 'Language not supported' };
 
 export default function Solve() {
@@ -128,7 +139,7 @@ export default function Solve() {
       const r = await runSample({
         language, code, input: tc.input, expectedOutput: tc.expectedOutput,
         checkerType: problem.checkerType, timeLimitSec: problem.timeLimitSec,
-        memoryLimitMB: problem.memoryLimitMB,
+        pythonTimeLimitSec: problem.pythonTimeLimitSec, memoryLimitMB: problem.memoryLimitMB,
       });
       out.push({ i: i + 1, input: tc.input, expected: tc.expectedOutput, ...r });
       setSamples([...out]);
@@ -145,7 +156,8 @@ export default function Solve() {
     try {
       const r = await runCustom({
         language, code, input: customInput,
-        timeLimitSec: problem.timeLimitSec, memoryLimitMB: problem.memoryLimitMB,
+        timeLimitSec: problem.timeLimitSec, pythonTimeLimitSec: problem.pythonTimeLimitSec,
+        memoryLimitMB: problem.memoryLimitMB,
       });
       setCustomResult(r);
       if (NEEDS_DOWNLOAD.has(language)) setEverRan((s) => new Set(s).add(language));
@@ -259,7 +271,7 @@ export default function Solve() {
             </h1>
             <div className="solve-limits">
               <span className={`cat-diff cat-diff--${problem.difficulty}`}>{problem.difficulty}</span>
-              <span>{problem.timeLimitSec}s</span><span>{problem.memoryLimitMB}MB</span>
+              <span title={limitNote(problem, language)}>{timeLimitSecFor(language, problem)}s{language === 'python' && pythonDeviceFactor() > 1.05 ? ` ×${pythonDeviceFactor().toFixed(1)}` : ''}</span><span>{problem.memoryLimitMB}MB</span>
               <span>{problem.caseCount} test cases</span>
             </div>
           </div>

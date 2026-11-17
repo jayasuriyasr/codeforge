@@ -13,7 +13,10 @@
 //   java        CheerpJ (full JRE → WASM), from Leaning Technologies' CDN  ⚠ experimental
 //
 // Resource verdicts:
-//   TLE  wall clock — the run is terminated at the limit
+//   TLE  wall clock. Python: interrupted at 1.5× the limit (a run that ends
+//        between 1× and 1.5× gets one more run), terminated 200 ms later;
+//        Python also gets a calibrated per-problem limit × this device's speed
+//        factor. Other languages: terminated at the limit.
 //   MLE  Python / C / C++: real (the WASM heap is a single growable region we
 //        measure and cap). JavaScript: best-effort. Java: from OutOfMemoryError.
 //
@@ -22,7 +25,8 @@
 
 import { check } from './checker.js';
 import { runJavascript } from './runners/javascript.js';
-import { runPython, initPython } from './runners/python.js';
+import { runPython, initPython, pythonDeviceFactor } from './runners/python.js';
+import { timeLimitSecFor } from './runners/pyPolicy.js';
 import { prefetchToolchain, toolchainFor, javaCompilerHosted, JAVA_NOT_HOSTED } from './loader.js';
 
 // C/C++ (emception) and Java (CheerpJ) pull in heavy glue code, so their
@@ -124,6 +128,13 @@ export function toolchainInfo(language) {
   return toolchainFor(language);
 }
 
+/**
+ * Time limit (seconds) a language gets on a problem. Python gets the problem's
+ * calibrated Python limit when it has one; in the browser it is further
+ * multiplied by this device's speed factor (see pythonDeviceFactor).
+ */
+export { timeLimitSecFor, pythonDeviceFactor };
+
 const RUNNERS = {
   javascript: (code, input, tl, ml) => runJavascript(code, input, tl, ml),
   python: (code, input, tl, ml) => runPython(code, input, tl, ml),
@@ -138,12 +149,13 @@ const VERDICT_FROM_STATUS = { TLE: 'TLE', MLE: 'MLE', RE: 'RE', CE: 'CE', OLE: '
  * Run ONE case, keeping actualOutput for display. Used by "Run Samples".
  * status: 'AC'|'WA'|'TLE'|'MLE'|'RE'|'CE'|'UNSUPPORTED'|'UNAVAILABLE'
  */
-export async function runSample({ language, code, input, expectedOutput, checkerType = 'exact', timeLimitSec = 2, memoryLimitMB }) {
+export async function runSample({ language, code, input, expectedOutput, checkerType = 'exact', timeLimitSec = 2, pythonTimeLimitSec, memoryLimitMB }) {
   const run = RUNNERS[language];
   if (!run) return { status: 'UNSUPPORTED' };
+  const limitMs = Math.round(timeLimitSecFor(language, { timeLimitSec, pythonTimeLimitSec }) * 1000);
   let r;
   try {
-    r = await run(code, input ?? '', Math.round(timeLimitSec * 1000), memoryLimitMB ?? Infinity);
+    r = await run(code, input ?? '', limitMs, memoryLimitMB ?? Infinity);
   } catch (err) {
     if (isUnavailable(err)) return { status: 'UNAVAILABLE', actualOutput: err.message };
     return { status: 'RE', error: String(err.message || err), actualOutput: '' };
@@ -160,12 +172,13 @@ export async function runSample({ language, code, input, expectedOutput, checker
  * (CE/RE/TLE/MLE). Used by the "Custom input" tab.
  * status: 'OK'|'TLE'|'MLE'|'RE'|'CE'|'UNSUPPORTED'|'UNAVAILABLE'
  */
-export async function runCustom({ language, code, input, timeLimitSec = 2, memoryLimitMB }) {
+export async function runCustom({ language, code, input, timeLimitSec = 2, pythonTimeLimitSec, memoryLimitMB }) {
   const run = RUNNERS[language];
   if (!run) return { status: 'UNSUPPORTED', output: '' };
+  const limitMs = Math.round(timeLimitSecFor(language, { timeLimitSec, pythonTimeLimitSec }) * 1000);
   let r;
   try {
-    r = await run(code, input ?? '', Math.round(timeLimitSec * 1000), memoryLimitMB ?? Infinity);
+    r = await run(code, input ?? '', limitMs, memoryLimitMB ?? Infinity);
   } catch (err) {
     if (isUnavailable(err)) return { status: 'UNAVAILABLE', output: err.message };
     return { status: 'RE', output: String(err.message || err) };
@@ -187,7 +200,7 @@ export async function judgePractice({ language, code, problem, onProgress, runne
   if (!run) throw new Error(`no in-browser runner for ${language}`);
 
   const cases = problem.testCases || [];
-  const limitMs = Math.round((problem.timeLimitSec || 2) * 1000);
+  const limitMs = Math.round(timeLimitSecFor(language, problem) * 1000);
   const memLimit = Number(problem.memoryLimitMB) || Infinity;
   const checkerType = problem.checkerType || 'exact';
 

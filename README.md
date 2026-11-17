@@ -57,14 +57,31 @@ flowchart LR
 | Java | [CheerpJ](https://cheerpj.com) (a JVM running in WebAssembly) — needs `tools.jar` deployed, see Known limitations |
 
 **Judging**
-- **Time Limit Exceeded:** each test case has a wall-clock limit. A run that goes over
-  is stopped by terminating its Web Worker.
-- **Memory Limit Exceeded:** real for Python and C/C++, measured from the size of the
-  program's WebAssembly heap (it only grows, so its final size is the peak). Growth
+- **Time Limit Exceeded:** each test case has a wall-clock limit, and only the program
+  itself is timed (not start-up or cleanup). JavaScript, C/C++ and Java runs that go
+  over are stopped by terminating their worker. Python is stopped without restarting
+  Pyodide: at 1.5× the limit (at most 3 s past it) Pyodide's interrupt buffer is set,
+  and a `sys.monitoring` hook switched on at that moment stops even a program that
+  catches the interrupt. Recursion without loops and single long C calls can't be
+  interrupted, so the worker is terminated 200 ms later and a fresh Pyodide is
+  restored from a memory snapshot in the background. A Python run that finishes
+  between the limit and the interrupt is run once more and the faster time counts —
+  browsers only have wall-clock time, which is noisy.
+- **Fair Python limits:** Python in the browser is slower than native CPython, by an
+  amount that depends on the workload. Each problem's Python limit is calibrated
+  (`npm run calibrate:python`): its reference solution runs natively and in Pyodide,
+  and Python gets the problem limit × that slowdown (at most 3×). A short benchmark
+  at start-up also gives slower devices proportionally more time (up to 3×).
+- **Memory Limit Exceeded:** real for Python and C/C++. Growth of the WebAssembly heap
   past the limit is refused, so a program that keeps allocating stops with MLE at the
-  limit instead of running into the time limit. Browsers can't measure a JavaScript
-  worker's memory, so for JavaScript only a real out-of-memory crash counts, and the
-  page says so.
+  limit instead of running into the time limit — even if it catches the
+  `MemoryError`. Python's heap is grown to the limit and every page backed with
+  memory before the first test (no growth or page-fault cost inside the timed run),
+  and its reading comes from the allocator itself, so it is exact. Memory left in
+  pieces by earlier tests can refuse a program that fits; such an MLE is re-checked
+  on a fresh Pyodide before it counts. Browsers can't measure a JavaScript worker's
+  memory, so for JavaScript only a real out-of-memory crash counts, and the page says
+  so.
 - **Fast input:** C/C++ programs get their whole input at once, so even 10⁵-number
   inputs run in about 100 ms.
 - **Small page loads:** opening a problem downloads only its sample tests; the full test

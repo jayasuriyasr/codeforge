@@ -13,9 +13,9 @@ import { toProblem, toTestCases, DIFFICULTY_ORDER } from './problemShape.js';
 export { toProblem, DIFFICULTY_ORDER };
 
 const LIST_COLUMNS =
-  'id, slug, title, difficulty, tags, time_limit_sec, memory_limit_mb, published, created_by, created_at, updated_at, test_cases(count)';
+  'id, slug, title, difficulty, tags, time_limit_sec, python_time_limit_sec, memory_limit_mb, published, created_by, created_at, updated_at, test_cases(count)';
 const PROBLEM_COLUMNS =
-  'id, slug, title, difficulty, tags, statement, time_limit_sec, memory_limit_mb, checker_type, published, created_by, updated_at';
+  'id, slug, title, difficulty, tags, statement, time_limit_sec, python_time_limit_sec, memory_limit_mb, checker_type, published, created_by, updated_at';
 const CASE_COLUMNS = 'position, input, expected_output, is_sample';
 const FULL_COLUMNS = `${PROBLEM_COLUMNS}, test_cases(${CASE_COLUMNS})`;
 // Opening a problem fetches only its samples (plus how many cases there are);

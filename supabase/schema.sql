@@ -50,6 +50,8 @@ create table if not exists public.problems (
   tags            text[] not null default '{}',
   statement       text not null check (char_length(statement) between 1 and 20000),
   time_limit_sec  numeric(3, 1) not null default 2 check (time_limit_sec between 0.5 and 10),
+  -- Python's own limit, calibrated against Pyodide (null = same as time_limit_sec).
+  python_time_limit_sec numeric(4, 1) check (python_time_limit_sec between 0.5 and 60),
   memory_limit_mb int not null default 128 check (memory_limit_mb between 16 and 512),
   checker_type    text not null default 'exact'
                     check (checker_type in ('exact', 'float', 'tokens', 'strict', 'check07', 'check10')),
@@ -82,6 +84,8 @@ alter table public.test_cases add constraint test_cases_input_check check (char_
 alter table public.test_cases drop constraint if exists test_cases_expected_output_check;
 alter table public.test_cases add constraint test_cases_expected_output_check
   check (char_length(expected_output) <= 4000000);
+alter table public.problems add column if not exists python_time_limit_sec numeric(4, 1)
+  check (python_time_limit_sec between 0.5 and 60);
 
 -- ── submissions ─────────────────────────────────────────────────────────────
 create table if not exists public.submissions (

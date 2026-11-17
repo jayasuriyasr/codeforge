@@ -9,7 +9,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "oxlint",
-    "test": "node --test \"test/**/*.test.js\""
+    "test": "node --test \"test/**/*.test.js\"",
+    "e2e:python": "node scripts/e2e-python.mjs",
+    "calibrate:python": "node scripts/calibrate-python.mjs"
   },
   "dependencies": {
     "@gameguild/emception-browser": "^4.4.0",

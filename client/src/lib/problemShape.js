@@ -27,6 +27,8 @@ export function toProblem(row) {
     tags: row.tags || [],
     statement: row.statement,
     timeLimitSec: Number(row.time_limit_sec),
+    // Calibrated limit for Python (Pyodide is slower than CPython); null = same as timeLimitSec.
+    pythonTimeLimitSec: row.python_time_limit_sec == null ? null : Number(row.python_time_limit_sec),
     memoryLimitMB: row.memory_limit_mb,
     checkerType: row.checker_type || 'exact',
     published: row.published,
