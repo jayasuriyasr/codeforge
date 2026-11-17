@@ -93,6 +93,16 @@ export async function runScenarios({ only } = {}) {
     }
   }
 
+  if (want('MLE')) {
+    // Hits the cap, catches every MemoryError and loops until the interrupt:
+    // memory was exceeded first, so MLE (not TLE).
+    await py.resetPython();
+    const { r, ms } = await timed(() => run('a = []\nwhile True:\n    try:\n        a.append(bytearray(1 << 20))\n    except MemoryError:\n        pass', '', 1000));
+    const next = await run('print(7)', '', 1000);
+    add('MLE: catches MemoryError and keeps looping → MLE, not TLE', r.status === 'MLE' && next.status === 'OK',
+      `verdict ${r.status} after ${ms} ms, next program ${next.status}`);
+  }
+
   if (want('memory')) {
     await py.resetPython();
     let r = await run('a = [bytearray(1 << 20) for _ in range(100)]\nprint(len(a))', '', 5000);

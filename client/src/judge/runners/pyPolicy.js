@@ -82,9 +82,13 @@ export function capHeapBytes(baseTopBytes, memLimitMb) {
  *   'RECHECK'   memory refused on a reused heap → run it again on a fresh Pyodide
  */
 export function decide(run, { limitMs, memLimitMb = Infinity, rerun = false, recheck = false } = {}) {
-  if (run.killed || run.interrupted) return 'TLE';
+  // A terminated worker reports nothing else: TLE.
+  if (run.killed) return 'TLE';
+  // Memory comes before the interrupt: a program that hit the cap, caught the
+  // MemoryError and then looped until the time limit exceeded memory first.
   const overMem = run.oom || run.refused || (Number.isFinite(memLimitMb) && run.memMb > memLimitMb + SLACK_MB);
   if (overMem) return run.startMb <= CLEAN_MB || recheck ? 'MLE' : 'RECHECK';
+  if (run.interrupted) return 'TLE';
   if (!run.ok) return 'RE';
   if (run.runMs <= limitMs) return 'OK';
   if (run.runMs <= stopAtMs(limitMs) && !rerun) return 'RERUN';

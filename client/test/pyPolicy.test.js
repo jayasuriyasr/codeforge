@@ -74,10 +74,15 @@ test('past 1.5× (no interrupt available) → TLE without a re-run', () => {
   assert.equal(decide(ok({ runMs: GRACE * 1000 + 1 }), L), 'TLE');
 });
 
-test('interrupted or terminated → TLE, whatever else happened', () => {
+test('interrupted or terminated → TLE', () => {
   assert.equal(decide({ ...ok(), interrupted: true }, L), 'TLE');
+  assert.equal(decide({ ok: false, error: 'TimeoutError', interrupted: true, runMs: 1500, memMb: 3, startMb: 0 }, L), 'TLE');
   assert.equal(decide({ killed: true, ok: false, runMs: 1700, memMb: 0, startMb: 0 }, L), 'TLE');
-  assert.equal(decide({ ...ok(), interrupted: true, refused: true }, L), 'TLE');
+});
+
+test('hit the memory cap, caught it, then looped until interrupted → MLE (memory came first)', () => {
+  assert.equal(decide({ ok: false, error: 'TimeoutError', interrupted: true, refused: true, runMs: 1500, memMb: 263, startMb: 0 }, L), 'MLE');
+  assert.equal(decide({ killed: true, refused: true, ok: false, runMs: 1700, memMb: 0, startMb: 0 }, L), 'TLE');
 });
 
 test('refused growth on a clean heap → MLE, even if the program caught it', () => {
